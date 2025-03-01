@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:recishare_flutter/recipe.dart';
+import 'package:recishare_flutter/pages/selected_recipe_page.dart';
 
 class RecipeList extends StatefulWidget {
   final List<Recipe> listItems;
@@ -28,7 +29,7 @@ class _RecipeListState extends State<RecipeList> {
               Expanded(
                   child: ListTile(
                 title: Text(recipe.name),
-                subtitle: Text(recipe.category),
+                subtitle: Text(recipe.description),
                 leading: const Expanded(
                     child: Image(
                   image: NetworkImage(
@@ -39,20 +40,27 @@ class _RecipeListState extends State<RecipeList> {
                     itemBuilder: (context) => [
                           PopupMenuItem(
                             value: recipe.name,
-                            child: const Text("Favourite"),
+                            child:
+                                const Text("Favourite"), // Favourite the recipe
                           ),
                           PopupMenuItem(
                             value: recipe.name,
-                            child: const Text("Edit"),
+                            child: const Text(
+                                "Edit"), // Open the edit page of the recipe
                           ),
                           PopupMenuItem(
                             child: const Text("Delete"),
                             onTap: () => setState(() {
-                              widget.listItems.remove(recipe);
+                              widget.listItems.remove(recipe); // Delete recipe
                             }),
                           )
                         ]),
-                onTap: () => (), // Open the editing page of the recipe
+                onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => SelectedRecipePage(
+                            recipe:
+                                recipe))), // Open the view page of the recipe
               )),
             ]),
           );

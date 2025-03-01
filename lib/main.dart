@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:recishare_flutter/my_home_page.dart';
+import 'package:recishare_flutter/pages/my_home_page.dart';
 
 void main() {
   runApp(const MyApp());

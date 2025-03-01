@@ -13,7 +13,7 @@ class _RecipesPageState extends State<RecipesPage> {
   List<Recipe> recipes = [];
 
   void newRecipe() {
-    var recipe = Recipe("chicken", "Lunch");
+    var recipe = Recipe("chicken", "Lunch", null, null, null, null);
     setState(() {
       recipes.add(recipe);
     });

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:recishare_flutter/home_page.dart';
-import 'package:recishare_flutter/recipes_page.dart';
-import 'package:recishare_flutter/settings_page.dart';
+import 'package:recishare_flutter/pages/home_page.dart';
+import 'package:recishare_flutter/pages/recipes_page.dart';
+import 'package:recishare_flutter/pages/settings_page.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});

@@ -1,9 +1,14 @@
 class Recipe {
   String name;
-  String category;
+  String description;
+  List<String>? ingredients;
+  List<String>? instructions;
+  int? prepTime;
+  int? cookTime;
   bool favourite = false;
 
-  Recipe(this.name, this.category);
+  Recipe(this.name, this.description, this.ingredients, this.instructions,
+      this.prepTime, this.cookTime);
 
   void favouriteRecipe() {
     favourite = !favourite;
