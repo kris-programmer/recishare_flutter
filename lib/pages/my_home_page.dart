@@ -37,6 +37,7 @@ class _MyHomePageState extends State<MyHomePage> {
             },
             selectedIndex: myIndex,
             indicatorColor: Colors.green,
+            // Pages available on the bottom navigation bar
             destinations: const [
               NavigationDestination(
                   icon: Icon(Icons.settings), label: "Settings"),

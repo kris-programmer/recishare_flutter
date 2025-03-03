@@ -5,10 +5,11 @@ class Recipe {
   List<String>? instructions;
   int? prepTime;
   int? cookTime;
+  String? imagePath;
   bool favourite = false;
 
   Recipe(this.name, this.description, this.ingredients, this.instructions,
-      this.prepTime, this.cookTime);
+      this.prepTime, this.cookTime, this.imagePath);
 
   void favouriteRecipe() {
     favourite = !favourite;
