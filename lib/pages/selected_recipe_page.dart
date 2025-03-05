@@ -4,7 +4,7 @@ import 'dart:io';
 
 class SelectedRecipePage extends StatelessWidget {
   final Recipe recipe;
-  const SelectedRecipePage({Key? key, required this.recipe}) : super(key: key);
+  const SelectedRecipePage({super.key, required this.recipe});
 
   @override
   Widget build(BuildContext context) {
@@ -13,13 +13,11 @@ class SelectedRecipePage extends StatelessWidget {
         title: Text(recipe.name),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(10.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -37,10 +35,11 @@ class SelectedRecipePage extends StatelessWidget {
               recipe.name,
               style: Theme.of(context).textTheme.headlineLarge,
             ),
+            Divider(),
             const SizedBox(height: 8),
             Text(
               recipe.description,
-              style: Theme.of(context).textTheme.headlineSmall,
+              style: Theme.of(context).textTheme.bodyLarge,
             ),
             const SizedBox(height: 16),
             Text(
@@ -48,25 +47,26 @@ class SelectedRecipePage extends StatelessWidget {
               style: Theme.of(context).textTheme.headlineLarge,
             ),
             const SizedBox(height: 8),
-            ...?recipe.ingredients?.map((ingredient) => Text('- $ingredient')),
+            ...?recipe.ingredients?.map((ingredient) =>
+                Text('- $ingredient', style: const TextStyle(fontSize: 20))),
             const SizedBox(height: 16),
             Text(
               'Instructions',
               style: Theme.of(context).textTheme.headlineLarge,
             ),
             const SizedBox(height: 8),
-            ...?recipe.instructions
-                ?.map((instruction) => Text('- $instruction')),
+            ...?recipe.instructions?.map((instruction) =>
+                Text('- $instruction', style: const TextStyle(fontSize: 20))),
             const SizedBox(height: 16),
-            Text(
-              'Prep Time: ${recipe.prepTime} minutes',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Cook Time: ${recipe.cookTime} minutes',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
+            Row(children: [
+              Icon(Icons.timer),
+              Text(
+                ' Prep Time: ${recipe.prepTime} minutes | '
+                'Cook Time: ${recipe.cookTime} minutes',
+                style: Theme.of(context).textTheme.labelLarge,
+              )
+            ]),
+            SizedBox(height: 8)
           ],
         ),
       ),
