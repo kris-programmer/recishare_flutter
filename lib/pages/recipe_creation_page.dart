@@ -22,7 +22,6 @@ class _RecipeCreationPageState extends State<RecipeCreationPage> {
   final TextEditingController _cookTimeController = TextEditingController();
 
   Future getImageGallery() async {
-    // Create the image pick functionality
     final pickedFile =
         await picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
     setState(() {
