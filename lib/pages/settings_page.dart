@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:recishare_flutter/pages/import_export_page.dart';
 
 class SettingsPage extends StatelessWidget {
-  const SettingsPage({super.key});
+  final Function() onRefresh;
+
+  const SettingsPage({super.key, required this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
@@ -12,31 +15,18 @@ class SettingsPage extends StatelessWidget {
       body: ListView(
         children: [
           ListTile(
-            leading: const Icon(Icons.person),
-            title: const Text('Account'),
-            onTap: () {
-              // Navigate to account settings
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.notifications),
-            title: const Text('Notifications'),
-            onTap: () {
-              // Navigate to notification settings
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.lock),
-            title: const Text('Privacy'),
-            onTap: () {
-              // Navigate to privacy settings
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.help),
-            title: const Text('Help & Support'),
-            onTap: () {
-              // Navigate to help & support
+            leading: const Icon(Icons.download),
+            title: const Text('Import / Export recipes'),
+            onTap: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        ImportExportPage(onRefresh: onRefresh)),
+              );
+              if (result == true) {
+                onRefresh();
+              }
             },
           ),
           ListTile(

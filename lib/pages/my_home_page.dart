@@ -12,11 +12,23 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int myIndex = 1; // Page index in app, used for the bottom nav bar
-  List<Widget> pageList = [
-    const SettingsPage(),
-    const HomePage(),
-    const RecipesPage()
-  ]; // Bottom nav bar
+  late List<Widget> pageList; // Declare pageList as late
+
+  @override
+  void initState() {
+    super.initState();
+    pageList = [
+      SettingsPage(onRefresh: _refreshRecipes), // Initialize pageList
+      const HomePage(),
+      const RecipesPage()
+    ]; // Bottom Nav bar
+  }
+
+  void _refreshRecipes() {
+    setState(() {
+      // Logic to refresh recipes when exiting settings page
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

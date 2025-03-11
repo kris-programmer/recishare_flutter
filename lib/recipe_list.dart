@@ -6,8 +6,10 @@ import 'dart:io';
 class RecipeList extends StatelessWidget {
   final List<Recipe> listItems;
   final Function(Recipe) onDelete;
+  final Function() onRefresh;
 
-  const RecipeList(this.listItems, {super.key, required this.onDelete});
+  const RecipeList(this.listItems,
+      {super.key, required this.onDelete, required this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
@@ -55,12 +57,15 @@ class RecipeList extends StatelessWidget {
                       ),
                     ],
                   ),
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SelectedRecipePage(recipe: recipe),
-                    ),
-                  ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            SelectedRecipePage(recipe: recipe),
+                      ),
+                    ).then((_) => onRefresh());
+                  },
                 ),
               ),
             ],

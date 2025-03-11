@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class Recipe {
   String name;
   String description;
@@ -40,4 +42,17 @@ class Recipe {
         json['cookTime'],
         json['imagePath'],
       );
+
+  // Convert a list of Recipe objects to a JSON string
+  static String toJsonList(List<Recipe> recipes) {
+    List<Map<String, dynamic>> jsonList =
+        recipes.map((recipe) => recipe.toJson()).toList();
+    return json.encode(jsonList);
+  }
+
+  // Convert a JSON string to a list of Recipe objects
+  static List<Recipe> fromJsonList(String jsonString) {
+    Iterable jsonList = json.decode(jsonString);
+    return List<Recipe>.from(jsonList.map((json) => Recipe.fromJson(json)));
+  }
 }

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 import '../recipe.dart';
 import 'recipe_creation_page.dart';
 import '../recipe_list.dart';
+import '../recipe_service.dart';
 
 class RecipesPage extends StatefulWidget {
   const RecipesPage({super.key});
@@ -13,6 +12,7 @@ class RecipesPage extends StatefulWidget {
 }
 
 class _RecipesPageState extends State<RecipesPage> {
+  final RecipeService _recipeService = RecipeService();
   List<Recipe> recipes = [];
 
   @override
@@ -22,28 +22,19 @@ class _RecipesPageState extends State<RecipesPage> {
   }
 
   Future<void> _loadRecipes() async {
-    final prefs = await SharedPreferences.getInstance();
-    final String? recipesString = prefs.getString('recipes');
-    if (recipesString != null) {
-      final List<dynamic> recipesJson = jsonDecode(recipesString);
-      setState(() {
-        recipes = recipesJson.map((json) => Recipe.fromJson(json)).toList();
-      });
-    }
+    recipes = await _recipeService.getAllRecipes();
+    setState(() {});
   }
 
   Future<void> _saveRecipes() async {
-    final prefs = await SharedPreferences.getInstance();
-    final String recipesString =
-        jsonEncode(recipes.map((recipe) => recipe.toJson()).toList());
-    await prefs.setString('recipes', recipesString);
+    await _recipeService.importRecipes(recipes);
   }
 
   void _deleteRecipe(Recipe recipe) {
     setState(() {
-      recipes.remove(recipe);
+      recipes.removeWhere((r) => r == recipe);
     });
-    _saveRecipes();
+    _saveRecipes(); // Save the updated list of recipes after deletion
   }
 
   @override
@@ -52,6 +43,10 @@ class _RecipesPageState extends State<RecipesPage> {
       appBar: AppBar(
         title: const Text("My Recipes"),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _loadRecipes, // refresh recipes
+          ),
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () async {
@@ -73,6 +68,7 @@ class _RecipesPageState extends State<RecipesPage> {
       body: RecipeList(
         recipes,
         onDelete: _deleteRecipe,
+        onRefresh: _loadRecipes,
       ),
     );
   }
