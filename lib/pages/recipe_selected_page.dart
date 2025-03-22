@@ -38,7 +38,7 @@ class SelectedRecipePage extends StatelessWidget {
             const Divider(),
             const SizedBox(height: 8),
             Text(
-              recipe.description,
+              recipe.description ?? 'No description available',
               style: Theme.of(context).textTheme.bodyLarge,
             ),
             const SizedBox(height: 16),
@@ -61,8 +61,8 @@ class SelectedRecipePage extends StatelessWidget {
             Row(children: [
               const Icon(Icons.timer),
               Text(
-                ' Prep Time: ${recipe.prepTime} minutes | '
-                'Cook Time: ${recipe.cookTime} minutes',
+                ' Prep Time: ${recipe.prepTime ?? 0} minutes | '
+                'Cook Time: ${recipe.cookTime ?? 0} minutes',
                 style: Theme.of(context).textTheme.labelLarge,
               )
             ]),

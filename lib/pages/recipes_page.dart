@@ -26,15 +26,15 @@ class _RecipesPageState extends State<RecipesPage> {
     setState(() {});
   }
 
-  Future<void> _saveRecipes() async {
-    await _recipeService.importRecipes(recipes);
+  Future<void> _saveRecipe(Recipe recipe) async {
+    await _recipeService.importRecipes([recipe]);
   }
 
-  void _deleteRecipe(Recipe recipe) {
+  void _deleteRecipe(Recipe recipe) async {
     setState(() {
       recipes.removeWhere((r) => r == recipe);
     });
-    _saveRecipes(); // Save the updated list of recipes after deletion
+    await _recipeService.deleteRecipe(recipe.id!);
   }
 
   @override
@@ -59,7 +59,7 @@ class _RecipesPageState extends State<RecipesPage> {
                 setState(() {
                   recipes.add(newRecipe);
                 });
-                _saveRecipes();
+                _saveRecipe(newRecipe);
               }
             },
           ),

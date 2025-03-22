@@ -12,10 +12,10 @@ class ImportExportPage extends StatefulWidget {
   const ImportExportPage({super.key, required this.onRefresh});
 
   @override
-  _ImportExportPageState createState() => _ImportExportPageState();
+  ImportExportPageState createState() => ImportExportPageState();
 }
 
-class _ImportExportPageState extends State<ImportExportPage> {
+class ImportExportPageState extends State<ImportExportPage> {
   final RecipeService _recipeService = RecipeService();
 
   Future<void> _importRecipes() async {
@@ -32,7 +32,6 @@ class _ImportExportPageState extends State<ImportExportPage> {
       String fileContent = await File(filePath).readAsString();
 
       List<Recipe> recipes = Recipe.fromJsonList(fileContent);
-      await _recipeService.getAllRecipes();
       await _recipeService.importRecipes(recipes);
 
       ScaffoldMessenger.of(context).showSnackBar(

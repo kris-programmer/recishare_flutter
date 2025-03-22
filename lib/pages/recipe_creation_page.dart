@@ -35,13 +35,15 @@ class _RecipeCreationPageState extends State<RecipeCreationPage> {
 
   void saveRecipe() {
     final recipe = Recipe(
-        _titleController.text,
-        _descriptionController.text,
-        _ingredientsController.text.split(','),
-        _instructionsController.text.split(','),
-        int.tryParse(_prepTimeController.text),
-        int.tryParse(_cookTimeController.text),
-        _image?.path);
+      name: _titleController.text,
+      description: _descriptionController.text,
+      ingredients: _ingredientsController.text.split(','),
+      instructions: _instructionsController.text.split(','),
+      prepTime: int.tryParse(_prepTimeController.text),
+      cookTime: int.tryParse(_cookTimeController.text),
+      imagePath: _image?.path,
+      favourite: false,
+    );
     // Navigate back to the recipes page and pass the new recipe
     Navigator.pop(context, recipe);
   }

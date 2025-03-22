@@ -1,37 +1,21 @@
-import 'package:recishare_flutter/recipe.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
+// filepath: /home/storm/Documents/ProgramProjects/ReciShare/recishare_flutter/lib/recipe_service.dart
+import 'database_helper.dart';
+import 'recipe.dart';
 
 class RecipeService {
-  List<Recipe> _recipes = [];
-
-  Future<void> importRecipes(List<Recipe> recipes) async {
-    // Filter out duplicates
-    final newRecipes = recipes
-        .where((newRecipe) => !_recipes
-            .any((existingRecipe) => existingRecipe.name == newRecipe.name))
-        .toList();
-    _recipes.addAll(newRecipes);
-    await _saveRecipesToStorage(); // Ensure this line saves the imported recipes
-  }
+  final DatabaseHelper _databaseHelper = DatabaseHelper();
 
   Future<List<Recipe>> getAllRecipes() async {
-    await _loadRecipesFromStorage();
-    return _recipes;
+    return await _databaseHelper.getAllRecipes();
   }
 
-  Future<void> _saveRecipesToStorage() async {
-    final prefs = await SharedPreferences.getInstance();
-    final String recipesString = Recipe.toJsonList(_recipes);
-    await prefs.setString('recipes', recipesString);
-  }
-
-  Future<void> _loadRecipesFromStorage() async {
-    final prefs = await SharedPreferences.getInstance();
-    final String? recipesString = prefs.getString('recipes');
-    if (recipesString != null) {
-      final List<dynamic> recipesJson = jsonDecode(recipesString);
-      _recipes = recipesJson.map((json) => Recipe.fromJson(json)).toList();
+  Future<void> importRecipes(List<Recipe> recipes) async {
+    for (var recipe in recipes) {
+      await _databaseHelper.insertRecipe(recipe);
     }
+  }
+
+  Future<void> deleteRecipe(int id) async {
+    await _databaseHelper.deleteRecipe(id);
   }
 }

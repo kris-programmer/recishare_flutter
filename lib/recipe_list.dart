@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:recishare_flutter/recipe.dart';
-import 'package:recishare_flutter/pages/selected_recipe_page.dart';
+import 'package:recishare_flutter/pages/recipe_selected_page.dart';
 import 'dart:io';
 
 class RecipeList extends StatelessWidget {
@@ -23,7 +23,8 @@ class RecipeList extends StatelessWidget {
               Expanded(
                 child: ListTile(
                   title: Text(recipe.name),
-                  subtitle: Text(recipe.description),
+                  subtitle:
+                      Text(recipe.description ?? 'No description available'),
                   leading: recipe.imagePath != null
                       ? Image.file(
                           File(recipe.imagePath!),

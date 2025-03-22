@@ -1,58 +1,66 @@
 import 'dart:convert';
 
 class Recipe {
-  String name;
-  String description;
-  List<String>? ingredients;
-  List<String>? instructions;
-  int? prepTime;
-  int? cookTime;
-  String? imagePath;
-  bool favourite = false;
+  final int? id;
+  final String name;
+  final String? description;
+  final List<String>? ingredients;
+  final List<String>? instructions;
+  final int? prepTime;
+  final int? cookTime;
+  final String? imagePath;
+  final bool favourite;
 
-  Recipe(this.name, this.description, this.ingredients, this.instructions,
-      this.prepTime, this.cookTime, this.imagePath);
+  Recipe({
+    this.id,
+    required this.name,
+    this.description,
+    this.ingredients,
+    this.instructions,
+    this.prepTime,
+    this.cookTime,
+    this.imagePath,
+    this.favourite = false,
+  });
 
-  void favouriteRecipe() {
-    favourite = !favourite;
-    if (favourite) {
-      // Add it to a favourites menu
-    }
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'description': description,
+      'ingredients': ingredients?.join(','),
+      'instructions': instructions?.join(','),
+      'prepTime': prepTime,
+      'cookTime': cookTime,
+      'imagePath': imagePath,
+      'favourite': favourite ? 1 : 0,
+    };
   }
 
-  // Convert a Recipe object into a Map object
-  Map<String, dynamic> toJson() => {
-        'name': name,
-        'description': description,
-        'ingredients': ingredients,
-        'instructions': instructions,
-        'prepTime': prepTime,
-        'cookTime': cookTime,
-        'imagePath': imagePath,
-        'favourite': favourite,
-      };
-
   // Convert a Map object into a Recipe object
-  factory Recipe.fromJson(Map<String, dynamic> json) => Recipe(
-        json['name'],
-        json['description'],
-        List<String>.from(json['ingredients']),
-        List<String>.from(json['instructions']),
-        json['prepTime'],
-        json['cookTime'],
-        json['imagePath'],
-      );
+  factory Recipe.fromMap(Map<String, dynamic> map) {
+    return Recipe(
+      id: map['id'],
+      name: map['name'],
+      description: map['description'],
+      ingredients: map['ingredients'].split(','),
+      instructions: map['instructions'].split(','),
+      prepTime: map['prepTime'],
+      cookTime: map['cookTime'],
+      imagePath: map['imagePath'],
+      favourite: map['favourite'] == 1,
+    );
+  }
 
-  // Convert a list of Recipe objects to a JSON string
   static String toJsonList(List<Recipe> recipes) {
     List<Map<String, dynamic>> jsonList =
-        recipes.map((recipe) => recipe.toJson()).toList();
-    return json.encode(jsonList);
+        recipes.map((recipe) => recipe.toMap()).toList();
+    return jsonEncode(jsonList);
   }
 
   // Convert a JSON string to a list of Recipe objects
   static List<Recipe> fromJsonList(String jsonString) {
-    Iterable jsonList = json.decode(jsonString);
-    return List<Recipe>.from(jsonList.map((json) => Recipe.fromJson(json)));
+    List<dynamic> jsonList = jsonDecode(jsonString);
+    return jsonList.map((json) => Recipe.fromMap(json)).toList();
   }
 }
