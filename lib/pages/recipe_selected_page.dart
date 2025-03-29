@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:recishare_flutter/recipe.dart';
+import 'package:recishare_flutter/pages/recipe_edit_page.dart';
 import 'dart:io';
 
 class SelectedRecipePage extends StatelessWidget {
@@ -15,6 +16,29 @@ class SelectedRecipePage extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RecipeEditPage(
+                    recipe: recipe,
+                    onSave: (updatedRecipe) {
+                      // Handle the updated recipe if needed
+                      Navigator.pop(context, updatedRecipe);
+                    },
+                  ),
+                ),
+              ).then((updatedRecipe) {
+                if (updatedRecipe != null) {
+                  // Update the UI with the new recipe details if needed
+                }
+              });
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(10.0),

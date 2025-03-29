@@ -76,4 +76,14 @@ class DatabaseHelper {
       whereArgs: [id],
     );
   }
+
+  Future<void> updateRecipe(Recipe recipe) async {
+    final db = await database;
+    await db.update(
+      'recipes',
+      recipe.toMap(),
+      where: 'id = ?',
+      whereArgs: [recipe.id],
+    );
+  }
 }

@@ -9,7 +9,7 @@ class Recipe {
   final int? prepTime;
   final int? cookTime;
   final String? imagePath;
-  final bool favourite;
+  bool favourite;
 
   Recipe({
     this.id,

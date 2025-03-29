@@ -18,4 +18,8 @@ class RecipeService {
   Future<void> deleteRecipe(int id) async {
     await _databaseHelper.deleteRecipe(id);
   }
+
+  Future<void> updateRecipe(Recipe recipe) async {
+    await _databaseHelper.updateRecipe(recipe);
+  }
 }
