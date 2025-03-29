@@ -42,13 +42,23 @@ class _RecipeEditPageState extends State<RecipeEditPage> {
         widget.recipe.imagePath != null ? File(widget.recipe.imagePath!) : null;
   }
 
+  bool _isPickingImage = false; // Create a temporary flag
   Future<void> _pickImage() async {
-    final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      });
+    if (_isPickingImage) return; // Prevent multiple calls
+    _isPickingImage = true;
+
+    try {
+      final pickedFile =
+          await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        setState(() {
+          _image = File(pickedFile.path);
+        });
+      }
+    } catch (e) {
+      print('Error picking image: $e');
+    } finally {
+      _isPickingImage = false; // Reset the flag
     }
   }
 
