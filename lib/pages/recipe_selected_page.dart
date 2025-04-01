@@ -48,7 +48,7 @@ class SelectedRecipePage extends StatelessWidget {
             if (recipe.imagePath != null)
               Image.file(
                 File(recipe.imagePath!),
-                fit: BoxFit.cover,
+                fit: BoxFit.fill,
                 width: double.infinity,
                 height: 200,
               )

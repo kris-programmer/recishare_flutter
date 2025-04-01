@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../recipe.dart';
 import '../recipe_service.dart';
+import '../widgets/dynamic_text_field_list.dart';
+import '../widgets/image_picker_widget.dart';
 
 class RecipeEditPage extends StatefulWidget {
   final Recipe recipe;
-  final Function(Recipe) onSave; // Add this parameter
+  final Function(Recipe) onSave;
 
   const RecipeEditPage({super.key, required this.recipe, required this.onSave});
 
@@ -23,8 +25,8 @@ class _RecipeEditPageState extends State<RecipeEditPage> {
   late final TextEditingController _prepTimeController;
   late final TextEditingController _cookTimeController;
 
-  List<TextEditingController> _ingredientControllers = [];
-  List<TextEditingController> _stepControllers = [];
+  final List<TextEditingController> _ingredientControllers = [];
+  final List<TextEditingController> _stepControllers = [];
 
   @override
   void initState() {
@@ -39,15 +41,15 @@ class _RecipeEditPageState extends State<RecipeEditPage> {
     _cookTimeController =
         TextEditingController(text: widget.recipe.cookTime?.toString() ?? '');
 
-    // Map ingredients to _ingredientControllers
-    _ingredientControllers = (widget.recipe.ingredients ?? [])
-        .map((ingredient) => TextEditingController(text: ingredient))
-        .toList();
-
-    // Map instructions to _stepControllers
-    _stepControllers = (widget.recipe.instructions ?? [])
-        .map((step) => TextEditingController(text: step))
-        .toList();
+    // Map ingredients and instructions to controllers
+    _ingredientControllers.addAll(
+      (widget.recipe.ingredients ?? [])
+          .map((ingredient) => TextEditingController(text: ingredient)),
+    );
+    _stepControllers.addAll(
+      (widget.recipe.instructions ?? [])
+          .map((step) => TextEditingController(text: step)),
+    );
 
     // Load the image if it exists
     if (widget.recipe.imagePath != null) {
@@ -70,63 +72,22 @@ class _RecipeEditPageState extends State<RecipeEditPage> {
     super.dispose();
   }
 
-  bool _isPickingImage = false; // Temp flag
-
-  Future getImageGallery() async {
-    if (_isPickingImage) return; // Prevent multiple calls
-    _isPickingImage = true;
-
-    try {
-      final pickedFile = await picker.pickImage(
-        source: ImageSource.gallery,
-        imageQuality: 80,
-      );
-      if (pickedFile != null) {
-        if (mounted) {
-          setState(() {
-            _image = File(pickedFile.path);
-          });
-        }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No image selected.')),
-          );
-        }
-      }
-    } catch (e) {
+  Future<void> getImageGallery() async {
+    final pickedFile = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+    );
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+    } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to pick an image.')),
+          const SnackBar(content: Text('No image selected.')),
         );
       }
-    } finally {
-      _isPickingImage = false; // Reset the flag
     }
-  }
-
-  void _addIngredientField() {
-    setState(() {
-      _ingredientControllers.add(TextEditingController());
-    });
-  }
-
-  void _addStepField() {
-    setState(() {
-      _stepControllers.add(TextEditingController());
-    });
-  }
-
-  void _removeIngredientField(int index) {
-    setState(() {
-      _ingredientControllers.removeAt(index).dispose();
-    });
-  }
-
-  void _removeStepField(int index) {
-    setState(() {
-      _stepControllers.removeAt(index).dispose();
-    });
   }
 
   void saveRecipe() async {
@@ -139,16 +100,15 @@ class _RecipeEditPageState extends State<RecipeEditPage> {
       cookTime: int.tryParse(_cookTimeController.text),
       imagePath: _image?.path,
       favourite: widget.recipe.favourite,
-      id: widget.recipe.id, // Ensure the ID is preserved
+      id: widget.recipe.id,
     );
 
-    // Save the updated recipe to the database
     final recipeService = RecipeService();
     await recipeService.updateRecipe(updatedRecipe);
 
     if (mounted) {
-      widget.onSave(updatedRecipe); // Call the onSave callback
-      Navigator.pop(context, updatedRecipe); // Safely pop the navigation stack
+      widget.onSave(updatedRecipe);
+      Navigator.pop(context, updatedRecipe);
     }
   }
 
@@ -173,48 +133,13 @@ class _RecipeEditPageState extends State<RecipeEditPage> {
           ),
           const SizedBox(height: 16),
           Center(
-            child: InkWell(
-              onTap: () {
-                getImageGallery();
+            child: ImagePickerWidget(
+              initialImage: _image,
+              onImagePicked: (pickedImage) {
+                setState(() {
+                  _image = pickedImage;
+                });
               },
-              child: Container(
-                height: 200,
-                width: MediaQuery.of(context).size.width,
-                padding: const EdgeInsets.all(5),
-                decoration:
-                    BoxDecoration(border: Border.all(color: Colors.grey)),
-                child: Stack(
-                  children: [
-                    _image != null
-                        ? Image.file(_image!.absolute,
-                            fit: BoxFit.cover, width: double.infinity)
-                        : const Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.add_photo_alternate_outlined,
-                                    size: 30),
-                                SizedBox(height: 8),
-                                Text('Add photo')
-                              ],
-                            ),
-                          ),
-                    if (_image != null)
-                      Positioned(
-                        top: 8,
-                        right: 8,
-                        child: IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () {
-                            setState(() {
-                              _image = null;
-                            });
-                          },
-                        ),
-                      ),
-                  ],
-                ),
-              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -231,108 +156,41 @@ class _RecipeEditPageState extends State<RecipeEditPage> {
           const SizedBox(height: 16),
 
           // INGREDIENTS
-          const Text('Ingredients'),
-          ..._ingredientControllers.asMap().entries.map((entry) {
-            int index = entry.key;
-            TextEditingController controller = entry.value;
-            return Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: controller,
-                    decoration:
-                        InputDecoration(labelText: 'Ingredient ${index + 1}'),
-                    minLines: 1, // Initial height of the text box
-                    maxLines: null, // Allows the text box to grow vertically
-                    keyboardType:
-                        TextInputType.multiline, // Enables multi-line input
-                    textAlignVertical:
-                        TextAlignVertical.top, // Aligns text to the top
-                    onChanged: (value) {
-                      // Detect if the user pasted multiple lines
-                      if (value.contains('\n')) {
-                        setState(() {
-                          // Split the pasted text into lines
-                          final lines = value
-                              .split('\n')
-                              .map((line) => line.trim())
-                              .where((line) => line.isNotEmpty)
-                              .toList();
-
-                          // Update the current field with the first line
-                          controller.text = lines.first;
-
-                          // Add the remaining lines as new fields
-                          for (var line in lines.skip(1)) {
-                            _ingredientControllers
-                                .add(TextEditingController(text: line));
-                          }
-                        });
-                      }
-                    },
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: () => _removeIngredientField(index),
-                ),
-              ],
-            );
-          }),
-          TextButton.icon(
-            icon: const Icon(Icons.add),
-            label: const Text('Add Ingredient'),
-            onPressed: _addIngredientField,
+          DynamicTextFieldList(
+            controllers: _ingredientControllers,
+            label: 'Ingredient',
+            onAdd: () {
+              setState(() {
+                _ingredientControllers.add(TextEditingController());
+              });
+            },
+            onRemove: (index) {
+              setState(() {
+                _ingredientControllers.removeAt(index).dispose();
+              });
+            },
+            minLines: 1,
           ),
+
           const SizedBox(height: 16),
 
           // INSTRUCTIONS
-          const Text('Steps'),
-          ..._stepControllers.asMap().entries.map((entry) {
-            int index = entry.key;
-            TextEditingController controller = entry.value;
-            return Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: controller,
-                    decoration: InputDecoration(labelText: 'Step ${index + 1}'),
-                    minLines: 2,
-                    maxLines: null,
-                    keyboardType: TextInputType.multiline,
-                    textAlignVertical: TextAlignVertical.top,
-                    onChanged: (value) {
-                      if (value.contains('\n')) {
-                        setState(() {
-                          final lines = value
-                              .split('\n')
-                              .map((line) => line.trim())
-                              .where((line) => line.isNotEmpty)
-                              .toList();
-
-                          controller.text = lines.first;
-
-                          for (var line in lines.skip(1)) {
-                            _stepControllers
-                                .add(TextEditingController(text: line));
-                          }
-                        });
-                      }
-                    },
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: () => _removeStepField(index),
-                ),
-              ],
-            );
-          }),
-          TextButton.icon(
-            icon: const Icon(Icons.add),
-            label: const Text('Add Step'),
-            onPressed: _addStepField,
+          DynamicTextFieldList(
+            controllers: _stepControllers,
+            label: 'Step',
+            onAdd: () {
+              setState(() {
+                _stepControllers.add(TextEditingController());
+              });
+            },
+            onRemove: (index) {
+              setState(() {
+                _stepControllers.removeAt(index).dispose();
+              });
+            },
+            minLines: 3,
           ),
+
           const SizedBox(height: 16),
           TextField(
             controller: _prepTimeController,

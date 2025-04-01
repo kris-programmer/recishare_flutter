@@ -2,6 +2,8 @@ import "dart:io";
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../recipe.dart';
+import '../widgets/dynamic_text_field_list.dart'; // Ingredients and steps controllers
+import '../widgets/image_picker_widget.dart';
 
 class RecipeCreationPage extends StatefulWidget {
   const RecipeCreationPage({super.key});
@@ -21,9 +23,6 @@ class _RecipeCreationPageState extends State<RecipeCreationPage> {
 
   final List<TextEditingController> _ingredientControllers = [];
   final List<TextEditingController> _instructionStepControllers = [];
-
-  bool _isProcessingIngredientsPaste = false;
-  bool _isProcessingStepsPaste = false; // Separate flag for steps
 
   @override
   // Free up memory after user is done creating a recipe
@@ -113,52 +112,19 @@ class _RecipeCreationPageState extends State<RecipeCreationPage> {
             decoration: const InputDecoration(labelText: 'Title'),
           ),
           const SizedBox(height: 16),
+
           Center(
-            child: InkWell(
-              onTap: () {
-                getImageGallery();
+            child: ImagePickerWidget(
+              initialImage: _image,
+              onImagePicked: (pickedImage) {
+                setState(() {
+                  _image = pickedImage;
+                });
               },
-              child: Container(
-                height: 200,
-                width: MediaQuery.of(context).size.width,
-                padding: const EdgeInsets.all(5),
-                decoration:
-                    BoxDecoration(border: Border.all(color: Colors.grey)),
-                child: Stack(
-                  children: [
-                    _image != null
-                        ? Image.file(_image!.absolute,
-                            fit: BoxFit.cover, width: double.infinity)
-                        : const Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.add_photo_alternate_outlined,
-                                    size: 30),
-                                SizedBox(height: 8),
-                                Text('Add photo')
-                              ],
-                            ),
-                          ),
-                    if (_image != null)
-                      Positioned(
-                        top: 8,
-                        right: 8,
-                        child: IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () {
-                            setState(() {
-                              _image = null;
-                            });
-                          },
-                        ),
-                      ),
-                  ],
-                ),
-              ),
             ),
           ),
           const SizedBox(height: 16),
+
           TextField(
             controller: _descriptionController,
             decoration: const InputDecoration(
@@ -172,123 +138,23 @@ class _RecipeCreationPageState extends State<RecipeCreationPage> {
           const SizedBox(height: 16),
 
           // INGREDIENTS
-          const Text('Ingredients'),
-          ..._ingredientControllers.asMap().entries.map((entry) {
-            int index = entry.key;
-            TextEditingController controller = entry.value;
-            return Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: controller,
-                    decoration:
-                        InputDecoration(labelText: 'Ingredient ${index + 1}'),
-                    minLines: 1,
-                    maxLines: null,
-                    keyboardType: TextInputType.multiline,
-                    textAlignVertical: TextAlignVertical.top,
-                    onChanged: (value) {
-                      if (_isProcessingIngredientsPaste) {
-                        return; // Prevent repeated updates
-                      }
-                      if (value.contains('\n')) {
-                        setState(() {
-                          _isProcessingIngredientsPaste = true; // Set the flag
-
-                          // Split the pasted text into lines
-                          final lines = value
-                              .split('\n')
-                              .map((line) => line.trim())
-                              .where((line) => line.isNotEmpty)
-                              .toList();
-
-                          // Update the current field with the first line
-                          controller.text = lines.first;
-
-                          // Add the remaining lines as new fields
-                          for (var line in lines.skip(1)) {
-                            _ingredientControllers
-                                .add(TextEditingController(text: line));
-                          }
-
-                          _isProcessingIngredientsPaste =
-                              false; // Reset the flag
-                        });
-                      }
-                    },
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: () => _removeIngredientField(index),
-                ),
-              ],
-            );
-          }),
-          TextButton.icon(
-            icon: const Icon(Icons.add),
-            label: const Text('Add Ingredient'),
-            onPressed: _addIngredientField,
+          DynamicTextFieldList(
+            controllers: _ingredientControllers,
+            label: 'Ingredient',
+            onAdd: _addIngredientField,
+            onRemove: _removeIngredientField,
+            minLines: 1, // Start with 2 rows for each ingredient text box
           ),
-          const SizedBox(height: 16),
 
           // INSTRUCTIONS
-          const Text('Steps'),
-          ..._instructionStepControllers.asMap().entries.map((entry) {
-            int index = entry.key;
-            TextEditingController controller = entry.value;
-            return Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: controller,
-                    decoration: InputDecoration(labelText: 'Step ${index + 1}'),
-                    minLines: 2,
-                    maxLines: null,
-                    keyboardType: TextInputType.multiline,
-                    textAlignVertical: TextAlignVertical.top,
-                    onChanged: (value) {
-                      if (_isProcessingStepsPaste) {
-                        return; // Prevent repeated updates
-                      }
-                      if (value.contains('\n')) {
-                        setState(() {
-                          _isProcessingStepsPaste = true; // Set the flag
-
-                          // Split the pasted text into lines
-                          final lines = value
-                              .split('\n')
-                              .map((line) => line.trim())
-                              .where((line) => line.isNotEmpty)
-                              .toList();
-
-                          // Update the current field with the first line
-                          controller.text = lines.first;
-
-                          // Add the remaining lines as new fields
-                          for (var line in lines.skip(1)) {
-                            _instructionStepControllers
-                                .add(TextEditingController(text: line));
-                          }
-
-                          _isProcessingStepsPaste = false; // Reset the flag
-                        });
-                      }
-                    },
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: () => _removeInstructionField(index),
-                ),
-              ],
-            );
-          }),
-          TextButton.icon(
-            icon: const Icon(Icons.add),
-            label: const Text('Add Step'),
-            onPressed: _addInstructionField,
+          DynamicTextFieldList(
+            controllers: _instructionStepControllers,
+            label: 'Step',
+            onAdd: _addInstructionField,
+            onRemove: _removeInstructionField,
+            minLines: 3, // Start with 3 rows for each step text box
           ),
+
           const SizedBox(height: 16),
           TextField(
             controller: _prepTimeController,
