@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:recishare_flutter/pages/import_export_page.dart';
-import 'package:recishare_flutter/pages/about_page.dart';
+import 'package:provider/provider.dart';
+import '../theme_provider.dart';
+import 'import_export_page.dart';
+import 'about_page.dart';
 
 class SettingsPage extends StatelessWidget {
   final Function() onRefresh;
@@ -9,9 +11,12 @@ class SettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
+        centerTitle: true,
       ),
       body: ListView(
         children: [
@@ -30,6 +35,14 @@ class SettingsPage extends StatelessWidget {
               }
             },
           ),
+          SwitchListTile(
+            title: const Text('Dark Mode'),
+            value: themeProvider.themeMode == ThemeMode.dark,
+            onChanged: (value) {
+              themeProvider.toggleTheme();
+            },
+            secondary: const Icon(Icons.dark_mode),
+          ),
           ListTile(
             leading: const Icon(Icons.info),
             title: const Text('About'),
@@ -37,7 +50,7 @@ class SettingsPage extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const AboutPage()),
-              ); // Navigate to AboutPage
+              );
             },
           ),
         ],

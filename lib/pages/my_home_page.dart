@@ -33,29 +33,54 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('ReciShare'),
-          centerTitle: true,
-          titleTextStyle: const TextStyle(
-              fontSize: 30, color: Colors.black, fontStyle: FontStyle.italic),
+      appBar: AppBar(
+        centerTitle: true,
+        title: Stack(
+          children: [
+            // Outline effect
+            Text(
+              'ReciShare',
+              style: TextStyle(
+                fontSize: 30,
+                fontStyle: FontStyle.italic,
+                foreground: Paint()
+                  ..style = PaintingStyle.stroke
+                  ..strokeWidth = 3
+                  ..color = Colors.black, // Outline color
+              ),
+            ),
+            // Main text
+            const Text(
+              'ReciShare',
+              style: TextStyle(
+                fontSize: 30,
+                fontStyle: FontStyle.italic,
+                color: Colors.white, // Main text color
+              ),
+            ),
+          ],
         ),
-        body: IndexedStack(
-            index: myIndex, children: pageList), // Select a page to display
-        bottomNavigationBar: NavigationBar(
-            onDestinationSelected: (index) {
-              setState(() {
-                myIndex = index;
-              });
-            },
-            selectedIndex: myIndex,
-            indicatorColor: Colors.green,
-            // Pages available on the bottom navigation bar
-            destinations: const [
-              NavigationDestination(
-                  icon: Icon(Icons.settings), label: "Settings"),
-              NavigationDestination(icon: Icon(Icons.home), label: "Home"),
-              NavigationDestination(
-                  icon: Icon(Icons.soup_kitchen), label: "Recipes")
-            ]));
+      ),
+      body: IndexedStack(
+        index: myIndex,
+        children: pageList,
+      ), // Select a page to display
+      bottomNavigationBar: NavigationBar(
+        onDestinationSelected: (index) {
+          setState(() {
+            myIndex = index;
+          });
+        },
+        selectedIndex: myIndex,
+        indicatorColor: Colors.green,
+        // Pages available on the bottom navigation bar
+        destinations: const [
+          NavigationDestination(icon: Icon(Icons.settings), label: "Settings"),
+          NavigationDestination(icon: Icon(Icons.home), label: "Home"),
+          NavigationDestination(
+              icon: Icon(Icons.soup_kitchen), label: "Recipes")
+        ],
+      ),
+    );
   }
 }
