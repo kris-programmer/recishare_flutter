@@ -46,7 +46,7 @@ class RecipeList extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       if (recipe.favourite)
-                        Icon(
+                        const Icon(
                           Icons.favorite,
                           color: Colors.red,
                         ),
@@ -61,8 +61,9 @@ class RecipeList extends StatelessWidget {
                                 builder: (context) => RecipeEditPage(
                                   recipe: recipe,
                                   onSave: (updatedRecipe) {
-                                    listItems[index] = updatedRecipe;
-                                    onRefresh();
+                                    listItems[index] =
+                                        updatedRecipe; // Update the recipe in the list
+                                    onRefresh(); // Refresh the list
                                   },
                                 ),
                               ),
@@ -107,8 +108,3 @@ class RecipeList extends StatelessWidget {
     );
   }
 }
-
-//IconButton(
- //                 onPressed: () => this.fav(recipe.favouriteRecipe),
-   //               icon: Icon(Icons.favorite),
-     //             color: recipe.favourite ? Colors.red : Colors.black)

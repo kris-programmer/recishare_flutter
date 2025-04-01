@@ -79,8 +79,19 @@ class SelectedRecipePage extends StatelessWidget {
               style: Theme.of(context).textTheme.headlineLarge,
             ),
             const SizedBox(height: 8),
-            ...?recipe.instructions?.map((instruction) =>
-                Text('- $instruction', style: const TextStyle(fontSize: 20))),
+            ...recipe.instructions?.asMap().entries.map((entry) {
+                  int index = entry.key + 1; // Step number (1-based index)
+                  String instruction = entry.value;
+                  return Text(
+                    '$index. $instruction',
+                    style: const TextStyle(fontSize: 20),
+                  );
+                }).toList() ??
+                [
+                  const Text('No instructions available',
+                      style: TextStyle(fontSize: 20))
+                ],
+            const SizedBox(height: 16),
             const SizedBox(height: 16),
             Row(children: [
               const Icon(Icons.timer),

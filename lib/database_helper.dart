@@ -18,11 +18,13 @@ class DatabaseHelper {
 
   Future<Database> _initDatabase() async {
     String path = join(await getDatabasesPath(), 'recipes.db');
-    return await openDatabase(
+    final db = await openDatabase(
       path,
       version: 1,
       onCreate: _onCreate,
     );
+
+    return db;
   }
 
   Future<void> _onCreate(Database db, int version) async {
@@ -45,17 +47,7 @@ class DatabaseHelper {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query('recipes');
     return List.generate(maps.length, (i) {
-      return Recipe(
-        id: maps[i]['id'],
-        name: maps[i]['name'],
-        description: maps[i]['description'],
-        ingredients: maps[i]['ingredients'].split(','),
-        instructions: maps[i]['instructions'].split(','),
-        prepTime: maps[i]['prepTime'],
-        cookTime: maps[i]['cookTime'],
-        imagePath: maps[i]['imagePath'],
-        favourite: maps[i]['favourite'] == 1,
-      );
+      return Recipe.fromMap(maps[i]);
     });
   }
 

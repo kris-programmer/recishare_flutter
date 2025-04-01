@@ -28,8 +28,8 @@ class Recipe {
       'id': id,
       'name': name,
       'description': description,
-      'ingredients': ingredients?.join(','),
-      'instructions': instructions?.join(','),
+      'ingredients': jsonEncode(ingredients), // Store as JSON array
+      'instructions': jsonEncode(instructions), // Store as JSON array
       'prepTime': prepTime,
       'cookTime': cookTime,
       'imagePath': imagePath,
@@ -43,8 +43,12 @@ class Recipe {
       id: map['id'],
       name: map['name'],
       description: map['description'],
-      ingredients: map['ingredients'].split(','),
-      instructions: map['instructions'].split(','),
+      ingredients: map['ingredients'] != null
+          ? List<String>.from(jsonDecode(map['ingredients']))
+          : [],
+      instructions: map['instructions'] != null
+          ? List<String>.from(jsonDecode(map['instructions']))
+          : [],
       prepTime: map['prepTime'],
       cookTime: map['cookTime'],
       imagePath: map['imagePath'],

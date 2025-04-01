@@ -16,10 +16,30 @@ class _RecipeCreationPageState extends State<RecipeCreationPage> {
 
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _ingredientsController = TextEditingController();
-  final TextEditingController _instructionsController = TextEditingController();
   final TextEditingController _prepTimeController = TextEditingController();
   final TextEditingController _cookTimeController = TextEditingController();
+
+  final List<TextEditingController> _ingredientControllers = [];
+  final List<TextEditingController> _instructionStepControllers = [];
+
+  bool _isProcessingIngredientsPaste = false;
+  bool _isProcessingStepsPaste = false; // Separate flag for steps
+
+  @override
+  // Free up memory after user is done creating a recipe
+  void dispose() {
+    for (var controller in _ingredientControllers) {
+      controller.dispose();
+    }
+    for (var controller in _instructionStepControllers) {
+      controller.dispose();
+    }
+    _titleController.dispose();
+    _descriptionController.dispose();
+    _prepTimeController.dispose();
+    _cookTimeController.dispose();
+    super.dispose();
+  }
 
   Future getImageGallery() async {
     final pickedFile =
@@ -28,8 +48,34 @@ class _RecipeCreationPageState extends State<RecipeCreationPage> {
       if (pickedFile != null) {
         _image = File(pickedFile.path);
       } else {
-        print("No image picked");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No image selected.')),
+        );
       }
+    });
+  }
+
+  void _addIngredientField() {
+    setState(() {
+      _ingredientControllers.add(TextEditingController());
+    });
+  }
+
+  void _addInstructionField() {
+    setState(() {
+      _instructionStepControllers.add(TextEditingController());
+    });
+  }
+
+  void _removeIngredientField(int index) {
+    setState(() {
+      _ingredientControllers.removeAt(index).dispose();
+    });
+  }
+
+  void _removeInstructionField(int index) {
+    setState(() {
+      _instructionStepControllers.removeAt(index).dispose();
     });
   }
 
@@ -37,14 +83,13 @@ class _RecipeCreationPageState extends State<RecipeCreationPage> {
     final recipe = Recipe(
       name: _titleController.text,
       description: _descriptionController.text,
-      ingredients: _ingredientsController.text.split(','),
-      instructions: _instructionsController.text.split(','),
+      ingredients: _ingredientControllers.map((c) => c.text).toList(),
+      instructions: _instructionStepControllers.map((c) => c.text).toList(),
       prepTime: int.tryParse(_prepTimeController.text),
       cookTime: int.tryParse(_cookTimeController.text),
       imagePath: _image?.path,
       favourite: false,
     );
-    // Navigate back to the recipes page and pass the new recipe
     Navigator.pop(context, recipe);
   }
 
@@ -60,12 +105,14 @@ class _RecipeCreationPageState extends State<RecipeCreationPage> {
           ),
         ],
       ),
-      body: Column(
+      body: ListView(
+        padding: const EdgeInsets.all(16.0),
         children: [
           TextField(
             controller: _titleController,
             decoration: const InputDecoration(labelText: 'Title'),
           ),
+          const SizedBox(height: 16),
           Center(
             child: InkWell(
               onTap: () {
@@ -111,20 +158,138 @@ class _RecipeCreationPageState extends State<RecipeCreationPage> {
               ),
             ),
           ),
+          const SizedBox(height: 16),
           TextField(
             controller: _descriptionController,
-            decoration: const InputDecoration(labelText: 'Description'),
-          ),
-          TextField(
-            controller: _ingredientsController,
             decoration: const InputDecoration(
-                labelText: 'Ingredients (comma separated)'),
+              labelText: 'Description',
+              border: OutlineInputBorder(),
+            ),
+            minLines: 3,
+            maxLines: null,
+            keyboardType: TextInputType.multiline,
           ),
-          TextField(
-            controller: _instructionsController,
-            decoration: const InputDecoration(
-                labelText: 'Instructions (comma separated)'),
+          const SizedBox(height: 16),
+
+          // INGREDIENTS
+          const Text('Ingredients'),
+          ..._ingredientControllers.asMap().entries.map((entry) {
+            int index = entry.key;
+            TextEditingController controller = entry.value;
+            return Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: controller,
+                    decoration:
+                        InputDecoration(labelText: 'Ingredient ${index + 1}'),
+                    minLines: 1,
+                    maxLines: null,
+                    keyboardType: TextInputType.multiline,
+                    textAlignVertical: TextAlignVertical.top,
+                    onChanged: (value) {
+                      if (_isProcessingIngredientsPaste) {
+                        return; // Prevent repeated updates
+                      }
+                      if (value.contains('\n')) {
+                        setState(() {
+                          _isProcessingIngredientsPaste = true; // Set the flag
+
+                          // Split the pasted text into lines
+                          final lines = value
+                              .split('\n')
+                              .map((line) => line.trim())
+                              .where((line) => line.isNotEmpty)
+                              .toList();
+
+                          // Update the current field with the first line
+                          controller.text = lines.first;
+
+                          // Add the remaining lines as new fields
+                          for (var line in lines.skip(1)) {
+                            _ingredientControllers
+                                .add(TextEditingController(text: line));
+                          }
+
+                          _isProcessingIngredientsPaste =
+                              false; // Reset the flag
+                        });
+                      }
+                    },
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: () => _removeIngredientField(index),
+                ),
+              ],
+            );
+          }),
+          TextButton.icon(
+            icon: const Icon(Icons.add),
+            label: const Text('Add Ingredient'),
+            onPressed: _addIngredientField,
           ),
+          const SizedBox(height: 16),
+
+          // INSTRUCTIONS
+          const Text('Steps'),
+          ..._instructionStepControllers.asMap().entries.map((entry) {
+            int index = entry.key;
+            TextEditingController controller = entry.value;
+            return Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: controller,
+                    decoration: InputDecoration(labelText: 'Step ${index + 1}'),
+                    minLines: 2,
+                    maxLines: null,
+                    keyboardType: TextInputType.multiline,
+                    textAlignVertical: TextAlignVertical.top,
+                    onChanged: (value) {
+                      if (_isProcessingStepsPaste) {
+                        return; // Prevent repeated updates
+                      }
+                      if (value.contains('\n')) {
+                        setState(() {
+                          _isProcessingStepsPaste = true; // Set the flag
+
+                          // Split the pasted text into lines
+                          final lines = value
+                              .split('\n')
+                              .map((line) => line.trim())
+                              .where((line) => line.isNotEmpty)
+                              .toList();
+
+                          // Update the current field with the first line
+                          controller.text = lines.first;
+
+                          // Add the remaining lines as new fields
+                          for (var line in lines.skip(1)) {
+                            _instructionStepControllers
+                                .add(TextEditingController(text: line));
+                          }
+
+                          _isProcessingStepsPaste = false; // Reset the flag
+                        });
+                      }
+                    },
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: () => _removeInstructionField(index),
+                ),
+              ],
+            );
+          }),
+          TextButton.icon(
+            icon: const Icon(Icons.add),
+            label: const Text('Add Step'),
+            onPressed: _addInstructionField,
+          ),
+          const SizedBox(height: 16),
           TextField(
             controller: _prepTimeController,
             decoration: const InputDecoration(labelText: 'Prep Time (minutes)'),
