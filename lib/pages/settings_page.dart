@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:recishare_flutter/pages/import_export_page.dart';
+import 'package:recishare_flutter/pages/about_page.dart';
 
 class SettingsPage extends StatelessWidget {
   final Function() onRefresh;
@@ -33,7 +34,10 @@ class SettingsPage extends StatelessWidget {
             leading: const Icon(Icons.info),
             title: const Text('About'),
             onTap: () {
-              // Navigate to about page
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AboutPage()),
+              ); // Navigate to AboutPage
             },
           ),
         ],

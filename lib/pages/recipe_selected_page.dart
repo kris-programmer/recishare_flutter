@@ -41,67 +41,142 @@ class SelectedRecipePage extends StatelessWidget {
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(10.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (recipe.imagePath != null)
-              Image.file(
-                File(recipe.imagePath!),
-                fit: BoxFit.fill,
-                width: double.infinity,
-                height: 200,
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8.0),
+                child: Image.file(
+                  File(recipe.imagePath!),
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: 200,
+                ),
               )
             else
-              const Icon(Icons.image_not_supported),
-            const SizedBox(height: 16),
+              const Icon(Icons.image_not_supported, size: 100),
+            const SizedBox(height: 24),
             Text(
               recipe.name,
-              style: Theme.of(context).textTheme.headlineLarge,
+              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
-            const Divider(),
-            const SizedBox(height: 8),
+            const Divider(thickness: 1.5),
+            const SizedBox(height: 16),
             Text(
               recipe.description ?? 'No description available',
               style: Theme.of(context).textTheme.bodyLarge,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
             Text(
               'Ingredients',
-              style: Theme.of(context).textTheme.headlineLarge,
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
             const SizedBox(height: 8),
-            ...?recipe.ingredients?.map((ingredient) =>
-                Text('- $ingredient', style: const TextStyle(fontSize: 20))),
-            const SizedBox(height: 16),
+            Card(
+              elevation: 2,
+              margin: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: recipe.ingredients?.map((ingredient) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4.0),
+                          child: Text(
+                            '- $ingredient',
+                            style: const TextStyle(fontSize: 18),
+                          ),
+                        );
+                      }).toList() ??
+                      [
+                        const Text('No ingredients available',
+                            style: TextStyle(fontSize: 18)),
+                      ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
             Text(
               'Instructions',
-              style: Theme.of(context).textTheme.headlineLarge,
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
             const SizedBox(height: 8),
-            ...recipe.instructions?.asMap().entries.map((entry) {
-                  int index = entry.key + 1; // Step number (1-based index)
-                  String instruction = entry.value;
-                  return Text(
-                    '$index. $instruction',
-                    style: const TextStyle(fontSize: 20),
-                  );
-                }).toList() ??
-                [
-                  const Text('No instructions available',
-                      style: TextStyle(fontSize: 20))
-                ],
-            const SizedBox(height: 16),
-            const SizedBox(height: 16),
-            Row(children: [
-              const Icon(Icons.timer),
-              Text(
-                ' Prep Time: ${recipe.prepTime ?? 0} minutes | '
-                'Cook Time: ${recipe.cookTime ?? 0} minutes',
-                style: Theme.of(context).textTheme.labelLarge,
-              )
-            ]),
-            const SizedBox(height: 8)
+            Card(
+              elevation: 2,
+              margin: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: recipe.instructions?.asMap().entries.map((entry) {
+                        int index = entry.key + 1;
+                        String instruction = entry.value;
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4.0),
+                          child: Text(
+                            '$index. $instruction',
+                            style: const TextStyle(fontSize: 18),
+                          ),
+                        );
+                      }).toList() ??
+                      [
+                        const Text('No instructions available',
+                            style: TextStyle(fontSize: 18)),
+                      ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.timer, size: 20, color: Colors.grey),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Prep Time:',
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey[700],
+                          ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${recipe.prepTime ?? 0} min',
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    const Icon(Icons.restaurant, size: 20, color: Colors.grey),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Cook Time:',
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey[700],
+                          ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${recipe.cookTime ?? 0} min',
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ],
         ),
       ),

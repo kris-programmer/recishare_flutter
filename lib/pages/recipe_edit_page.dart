@@ -92,12 +92,20 @@ class _RecipeEditPageState extends State<RecipeEditPage> {
 
   void saveRecipe() async {
     final updatedRecipe = Recipe(
-      name: _titleController.text,
-      description: _descriptionController.text,
-      ingredients: _ingredientControllers.map((c) => c.text).toList(),
-      instructions: _stepControllers.map((c) => c.text).toList(),
-      prepTime: int.tryParse(_prepTimeController.text),
-      cookTime: int.tryParse(_cookTimeController.text),
+      name: _titleController.text.isNotEmpty
+          ? _titleController.text
+          : 'Untitled Recipe',
+      description: _descriptionController.text.isNotEmpty
+          ? _descriptionController.text
+          : 'No description provided.',
+      ingredients: _ingredientControllers
+          .map((c) => c.text.isNotEmpty ? c.text : 'Unnamed ingredient')
+          .toList(),
+      instructions: _stepControllers
+          .map((c) => c.text.isNotEmpty ? c.text : 'Unnamed step')
+          .toList(),
+      prepTime: int.tryParse(_prepTimeController.text) ?? 0,
+      cookTime: int.tryParse(_cookTimeController.text) ?? 0,
       imagePath: _image?.path,
       favourite: widget.recipe.favourite,
       id: widget.recipe.id,

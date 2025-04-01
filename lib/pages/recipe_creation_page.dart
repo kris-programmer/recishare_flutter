@@ -80,12 +80,24 @@ class _RecipeCreationPageState extends State<RecipeCreationPage> {
 
   void saveRecipe() {
     final recipe = Recipe(
-      name: _titleController.text,
-      description: _descriptionController.text,
-      ingredients: _ingredientControllers.map((c) => c.text).toList(),
-      instructions: _instructionStepControllers.map((c) => c.text).toList(),
-      prepTime: int.tryParse(_prepTimeController.text),
-      cookTime: int.tryParse(_cookTimeController.text),
+      name: _titleController.text.isNotEmpty
+          ? _titleController.text
+          : 'Untitled Recipe',
+      description: _descriptionController.text.isNotEmpty
+          ? _descriptionController.text
+          : 'No description provided.',
+      ingredients: _ingredientControllers.isNotEmpty
+          ? _ingredientControllers
+              .map((c) => c.text.isNotEmpty ? c.text : 'Unnamed ingredient')
+              .toList()
+          : ['No ingredients added.'],
+      instructions: _instructionStepControllers.isNotEmpty
+          ? _instructionStepControllers
+              .map((c) => c.text.isNotEmpty ? c.text : 'Unnamed step')
+              .toList()
+          : ['No instructions added.'],
+      prepTime: int.tryParse(_prepTimeController.text) ?? 0,
+      cookTime: int.tryParse(_cookTimeController.text) ?? 0,
       imagePath: _image?.path,
       favourite: false,
     );
