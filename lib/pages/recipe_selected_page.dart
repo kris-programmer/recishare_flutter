@@ -70,6 +70,16 @@ class SelectedRecipePage extends StatelessWidget {
               recipe.description ?? 'No description available',
               style: Theme.of(context).textTheme.bodyLarge,
             ),
+            const SizedBox(
+              height: 24,
+            ),
+            Text(
+              'Last edited: ${recipe.dateCreated.toLocal().toString().split(' ')[0]}',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Colors.grey,
+                    fontStyle: FontStyle.italic,
+                  ),
+            ),
             const SizedBox(height: 24),
             Text(
               'Ingredients',

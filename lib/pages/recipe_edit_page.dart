@@ -107,6 +107,7 @@ class _RecipeEditPageState extends State<RecipeEditPage> {
       prepTime: int.tryParse(_prepTimeController.text) ?? 0,
       cookTime: int.tryParse(_cookTimeController.text) ?? 0,
       imagePath: _image?.path,
+      dateCreated: DateTime.now(), // Update the date of creation
       favourite: widget.recipe.favourite,
       id: widget.recipe.id,
     );

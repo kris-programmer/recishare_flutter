@@ -16,6 +16,7 @@ class _RecipesPageState extends State<RecipesPage> {
   List<Recipe> recipes = [];
   bool isSelectionMode = false;
   final Set<Recipe> selectedRecipes = {};
+  String sortCriteria = 'Name'; // Default sorting criteria
 
   @override
   void initState() {
@@ -25,11 +26,26 @@ class _RecipesPageState extends State<RecipesPage> {
 
   Future<void> _loadRecipes() async {
     recipes = await _recipeService.getAllRecipes();
+    //_sortRecipes();
     setState(() {});
+  }
+
+  void _sortRecipes() {
+    setState(() {
+      if (sortCriteria == 'Name') {
+        recipes.sort((a, b) => a.name.compareTo(b.name));
+      } else if (sortCriteria == 'Date') {
+        recipes.sort((a, b) => a.dateCreated.compareTo(b.dateCreated));
+      } else if (sortCriteria == 'Favourite') {
+        recipes.sort(
+            (a, b) => (b.favourite ? 1 : 0).compareTo(a.favourite ? 1 : 0));
+      }
+    });
   }
 
   Future<void> _saveRecipe(Recipe recipe) async {
     await _recipeService.importRecipes([recipe]);
+    await _loadRecipes();
   }
 
   void _deleteRecipe(Recipe recipe) async {
@@ -115,32 +131,37 @@ class _RecipesPageState extends State<RecipesPage> {
                 ),
               ],
       ),
-      body: RecipeList(
-        recipes,
-        isSelectionMode: isSelectionMode,
-        selectedRecipes: selectedRecipes,
-        onDelete: _deleteRecipe,
-        onRefresh: _loadRecipes,
-        onSelectionChange: (recipe, isSelected) {
-          setState(() {
-            if (isSelected) {
-              selectedRecipes.add(recipe);
-            } else {
-              selectedRecipes.remove(recipe);
-            }
+      body: RecipeList(recipes,
+          isSelectionMode: isSelectionMode,
+          selectedRecipes: selectedRecipes,
+          onDelete: _deleteRecipe,
+          onRefresh: _loadRecipes,
+          onSelectionChange: (recipe, isSelected) {
+            setState(() {
+              if (isSelected) {
+                selectedRecipes.add(recipe);
+              } else {
+                selectedRecipes.remove(recipe);
+              }
 
-            // Exit selection mode if no recipes are selected
-            if (selectedRecipes.isEmpty) {
-              isSelectionMode = false;
-            }
-          });
-        },
-        onStartSelectionMode: () {
-          setState(() {
-            isSelectionMode = true;
-          });
-        },
-      ),
+              // Exit selection mode if no recipes are selected
+              if (selectedRecipes.isEmpty) {
+                isSelectionMode = false;
+              }
+            });
+          },
+          onStartSelectionMode: () {
+            setState(() {
+              isSelectionMode = true;
+            });
+          },
+          sortCriteria: sortCriteria, // Pass the sorting criteria
+          onSortChange: (newCriteria) {
+            setState(() {
+              sortCriteria = newCriteria;
+            });
+            _sortRecipes(); // Trigger the sorting
+          }),
     );
   }
 }

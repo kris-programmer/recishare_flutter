@@ -9,6 +9,7 @@ class Recipe {
   final int? prepTime;
   final int? cookTime;
   final String? imagePath;
+  final DateTime dateCreated;
   bool favourite;
 
   Recipe({
@@ -20,6 +21,7 @@ class Recipe {
     this.prepTime,
     this.cookTime,
     this.imagePath,
+    required this.dateCreated,
     this.favourite = false,
   });
 
@@ -33,6 +35,7 @@ class Recipe {
       'prepTime': prepTime,
       'cookTime': cookTime,
       'imagePath': imagePath,
+      'dateCreated': dateCreated.toIso8601String(), // Convert to ISO string
       'favourite': favourite ? 1 : 0,
     };
   }
@@ -52,6 +55,9 @@ class Recipe {
       prepTime: map['prepTime'],
       cookTime: map['cookTime'],
       imagePath: map['imagePath'],
+      dateCreated: map['dateCreated'] != null
+          ? DateTime.parse(map['dateCreated'])
+          : DateTime.now(), // Use current date if NULL
       favourite: map['favourite'] == 1,
     );
   }

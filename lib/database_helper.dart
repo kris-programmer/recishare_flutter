@@ -20,7 +20,7 @@ class DatabaseHelper {
     String path = join(await getDatabasesPath(), 'recipes.db');
     final db = await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _onCreate,
     );
 
@@ -38,7 +38,8 @@ class DatabaseHelper {
         prepTime INTEGER,
         cookTime INTEGER,
         imagePath TEXT,
-        favourite INTEGER
+        favourite INTEGER,
+        dateCreated TEXT NOT NULL
       )
     ''');
   }

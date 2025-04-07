@@ -99,6 +99,7 @@ class _RecipeCreationPageState extends State<RecipeCreationPage> {
       prepTime: int.tryParse(_prepTimeController.text) ?? 0,
       cookTime: int.tryParse(_cookTimeController.text) ?? 0,
       imagePath: _image?.path,
+      dateCreated: DateTime.now(),
       favourite: false,
     );
     Navigator.pop(context, recipe);
