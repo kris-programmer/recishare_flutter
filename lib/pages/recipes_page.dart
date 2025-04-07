@@ -56,14 +56,37 @@ class _RecipesPageState extends State<RecipesPage> {
   }
 
   void _deleteSelectedRecipes() async {
-    for (var recipe in selectedRecipes) {
-      await _recipeService.deleteRecipe(recipe.id!);
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Deletion'),
+          content: Text(
+              'Are you sure you want to delete ${selectedRecipes.length} recipes?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false), // Cancel
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true), // Confirm
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldDelete == true) {
+      for (var recipe in selectedRecipes) {
+        await _recipeService.deleteRecipe(recipe.id!);
+      }
+      setState(() {
+        recipes.removeWhere((r) => selectedRecipes.contains(r));
+        selectedRecipes.clear();
+        isSelectionMode = false;
+      });
     }
-    setState(() {
-      recipes.removeWhere((r) => selectedRecipes.contains(r));
-      selectedRecipes.clear();
-      isSelectionMode = false;
-    });
   }
 
   void _toggleFavouriteSelectedRecipes() async {

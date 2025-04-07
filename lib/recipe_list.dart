@@ -84,7 +84,6 @@ class RecipeList extends StatelessWidget {
                               ],
                             ),
                           ))
-                      .toList(),
                 ],
                 onChanged: (value) {
                   if (value != null) {
@@ -148,58 +147,55 @@ class RecipeList extends StatelessWidget {
                                   height: 50,
                                 )
                               : const Icon(Icons.image_not_supported),
-                          trailing: isSelectionMode
-                              ? null
-                              : Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: <Widget>[
-                                    if (recipe.favourite)
-                                      const Icon(
-                                        Icons.favorite,
-                                        color: Colors.red,
-                                      ),
-                                    PopupMenuButton<String>(
-                                      onSelected: (String value) {
-                                        if (value == 'Favourite') {
-                                          _toggleFavourite(recipe);
-                                        } else if (value == 'Edit') {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  RecipeEditPage(
-                                                recipe: recipe,
-                                                onSave: (updatedRecipe) {
-                                                  listItems[index] =
-                                                      updatedRecipe;
-                                                  onRefresh();
-                                                },
-                                              ),
-                                            ),
-                                          );
-                                        } else if (value == 'Delete') {
-                                          onDelete(recipe);
-                                        }
-                                      },
-                                      itemBuilder: (context) => [
-                                        PopupMenuItem(
-                                          value: 'Favourite',
-                                          child: Text(recipe.favourite
-                                              ? "Unfavourite"
-                                              : "Favourite"),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              if (recipe.favourite)
+                                const Icon(
+                                  Icons.favorite,
+                                  color: Colors.red,
+                                ),
+                              if (!isSelectionMode)
+                                PopupMenuButton<String>(
+                                  onSelected: (String value) {
+                                    if (value == 'Favourite') {
+                                      _toggleFavourite(recipe);
+                                    } else if (value == 'Edit') {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => RecipeEditPage(
+                                            recipe: recipe,
+                                            onSave: (updatedRecipe) {
+                                              listItems[index] = updatedRecipe;
+                                              onRefresh();
+                                            },
+                                          ),
                                         ),
-                                        const PopupMenuItem(
-                                          value: 'Edit',
-                                          child: Text("Edit"),
-                                        ),
-                                        const PopupMenuItem(
-                                          value: 'Delete',
-                                          child: Text("Delete"),
-                                        ),
-                                      ],
+                                      );
+                                    } else if (value == 'Delete') {
+                                      onDelete(recipe);
+                                    }
+                                  },
+                                  itemBuilder: (context) => [
+                                    PopupMenuItem(
+                                      value: 'Favourite',
+                                      child: Text(recipe.favourite
+                                          ? "Unfavourite"
+                                          : "Favourite"),
+                                    ),
+                                    const PopupMenuItem(
+                                      value: 'Edit',
+                                      child: Text("Edit"),
+                                    ),
+                                    const PopupMenuItem(
+                                      value: 'Delete',
+                                      child: Text("Delete"),
                                     ),
                                   ],
                                 ),
+                            ],
+                          ),
                         ),
                       ),
                     ],

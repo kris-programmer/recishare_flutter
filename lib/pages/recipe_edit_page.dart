@@ -123,95 +123,122 @@ class _RecipeEditPageState extends State<RecipeEditPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Edit Recipe"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.check),
-            onPressed: saveRecipe,
-          ),
-        ],
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: [
-          TextField(
-            controller: _titleController,
-            decoration: const InputDecoration(labelText: 'Title'),
-          ),
-          const SizedBox(height: 16),
-          Center(
-            child: ImagePickerWidget(
-              initialImage: _image,
-              onImagePicked: (pickedImage) {
+    return WillPopScope(
+      onWillPop: () async {
+        final shouldDiscard = await showDialog<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Discard Changes?'),
+              content: const Text(
+                  'Are you sure you want to discard your changes? Any unsaved progress will be lost.'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false), // Stay
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true), // Discard
+                  child: const Text('Discard'),
+                ),
+              ],
+            );
+          },
+        );
+        return shouldDiscard ?? false; // Prevent navigation if canceled
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("Edit Recipe"),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.check),
+              onPressed: saveRecipe,
+            ),
+          ],
+        ),
+        body: ListView(
+          padding: const EdgeInsets.all(16.0),
+          children: [
+            TextField(
+              controller: _titleController,
+              decoration: const InputDecoration(labelText: 'Title'),
+            ),
+            const SizedBox(height: 16),
+            Center(
+              child: ImagePickerWidget(
+                initialImage: _image,
+                onImagePicked: (pickedImage) {
+                  setState(() {
+                    _image = pickedImage;
+                  });
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _descriptionController,
+              decoration: const InputDecoration(
+                labelText: 'Description',
+                border: OutlineInputBorder(),
+              ),
+              minLines: 3,
+              maxLines: null,
+              keyboardType: TextInputType.multiline,
+            ),
+            const SizedBox(height: 16),
+
+            // INGREDIENTS
+            DynamicTextFieldList(
+              controllers: _ingredientControllers,
+              label: 'Ingredient',
+              onAdd: () {
                 setState(() {
-                  _image = pickedImage;
+                  _ingredientControllers.add(TextEditingController());
                 });
               },
+              onRemove: (index) {
+                setState(() {
+                  _ingredientControllers.removeAt(index).dispose();
+                });
+              },
+              minLines: 1,
             ),
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _descriptionController,
-            decoration: const InputDecoration(
-              labelText: 'Description',
-              border: OutlineInputBorder(),
+
+            const SizedBox(height: 16),
+
+            // INSTRUCTIONS
+            DynamicTextFieldList(
+              controllers: _stepControllers,
+              label: 'Step',
+              onAdd: () {
+                setState(() {
+                  _stepControllers.add(TextEditingController());
+                });
+              },
+              onRemove: (index) {
+                setState(() {
+                  _stepControllers.removeAt(index).dispose();
+                });
+              },
+              minLines: 3,
             ),
-            minLines: 3,
-            maxLines: null,
-            keyboardType: TextInputType.multiline,
-          ),
-          const SizedBox(height: 16),
 
-          // INGREDIENTS
-          DynamicTextFieldList(
-            controllers: _ingredientControllers,
-            label: 'Ingredient',
-            onAdd: () {
-              setState(() {
-                _ingredientControllers.add(TextEditingController());
-              });
-            },
-            onRemove: (index) {
-              setState(() {
-                _ingredientControllers.removeAt(index).dispose();
-              });
-            },
-            minLines: 1,
-          ),
-
-          const SizedBox(height: 16),
-
-          // INSTRUCTIONS
-          DynamicTextFieldList(
-            controllers: _stepControllers,
-            label: 'Step',
-            onAdd: () {
-              setState(() {
-                _stepControllers.add(TextEditingController());
-              });
-            },
-            onRemove: (index) {
-              setState(() {
-                _stepControllers.removeAt(index).dispose();
-              });
-            },
-            minLines: 3,
-          ),
-
-          const SizedBox(height: 16),
-          TextField(
-            controller: _prepTimeController,
-            decoration: const InputDecoration(labelText: 'Prep Time (minutes)'),
-            keyboardType: TextInputType.number,
-          ),
-          TextField(
-            controller: _cookTimeController,
-            decoration: const InputDecoration(labelText: 'Cook Time (minutes)'),
-            keyboardType: TextInputType.number,
-          ),
-        ],
+            const SizedBox(height: 16),
+            TextField(
+              controller: _prepTimeController,
+              decoration:
+                  const InputDecoration(labelText: 'Prep Time (minutes)'),
+              keyboardType: TextInputType.number,
+            ),
+            TextField(
+              controller: _cookTimeController,
+              decoration:
+                  const InputDecoration(labelText: 'Cook Time (minutes)'),
+              keyboardType: TextInputType.number,
+            ),
+          ],
+        ),
       ),
     );
   }
