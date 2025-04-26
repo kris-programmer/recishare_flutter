@@ -8,7 +8,7 @@ class Recipe {
   final List<String>? instructions;
   final int? prepTime;
   final int? cookTime;
-  final String? imagePath;
+  String? imageData;
   final DateTime dateCreated;
   bool favourite;
 
@@ -20,11 +20,12 @@ class Recipe {
     this.instructions,
     this.prepTime,
     this.cookTime,
-    this.imagePath,
+    this.imageData,
     required this.dateCreated,
     this.favourite = false,
   });
 
+  // Convert a Recipe object to a Map
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -34,13 +35,13 @@ class Recipe {
       'instructions': jsonEncode(instructions), // Store as JSON array
       'prepTime': prepTime,
       'cookTime': cookTime,
-      'imagePath': imagePath,
+      'imageData': imageData,
       'dateCreated': dateCreated.toIso8601String(), // Convert to ISO string
       'favourite': favourite ? 1 : 0,
     };
   }
 
-  // Convert a Map object into a Recipe object
+  // Convert a Map to a Recipe object
   factory Recipe.fromMap(Map<String, dynamic> map) {
     return Recipe(
       id: map['id'],
@@ -54,7 +55,7 @@ class Recipe {
           : [],
       prepTime: map['prepTime'],
       cookTime: map['cookTime'],
-      imagePath: map['imagePath'],
+      imageData: map['imageData'],
       dateCreated: map['dateCreated'] != null
           ? DateTime.parse(map['dateCreated'])
           : DateTime.now(), // Use current date if NULL
@@ -62,15 +63,16 @@ class Recipe {
     );
   }
 
-  static String toJsonList(List<Recipe> recipes) {
-    List<Map<String, dynamic>> jsonList =
-        recipes.map((recipe) => recipe.toMap()).toList();
-    return jsonEncode(jsonList);
-  }
-
   // Convert a JSON string to a list of Recipe objects
   static List<Recipe> fromJsonList(String jsonString) {
-    List<dynamic> jsonList = jsonDecode(jsonString);
+    final List<dynamic> jsonList = jsonDecode(jsonString);
     return jsonList.map((json) => Recipe.fromMap(json)).toList();
+  }
+
+  // Convert a list of Recipe objects to a JSON string
+  static String toJsonList(List<Recipe> recipes) {
+    final List<Map<String, dynamic>> jsonList =
+        recipes.map((recipe) => recipe.toMap()).toList();
+    return jsonEncode(jsonList);
   }
 }

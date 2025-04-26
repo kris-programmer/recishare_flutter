@@ -4,7 +4,8 @@ import 'package:image_picker/image_picker.dart';
 import '../recipe.dart';
 import '../recipe_service.dart';
 import '../widgets/dynamic_text_field_list.dart';
-import '../widgets/image_picker_widget.dart';
+import 'package:recishare_flutter/utils/image_utils.dart';
+import 'dart:convert';
 
 class RecipeEditPage extends StatefulWidget {
   final Recipe recipe;
@@ -51,10 +52,8 @@ class _RecipeEditPageState extends State<RecipeEditPage> {
           .map((step) => TextEditingController(text: step)),
     );
 
-    // Load the image if it exists
-    if (widget.recipe.imagePath != null) {
-      _image = File(widget.recipe.imagePath!);
-    }
+    // Do not initialize _image for Base64 data
+    // _image will only be set when a new image is picked
   }
 
   @override
@@ -80,6 +79,7 @@ class _RecipeEditPageState extends State<RecipeEditPage> {
     if (pickedFile != null) {
       setState(() {
         _image = File(pickedFile.path);
+        widget.recipe.imageData = null; // Clear the existing Base64 data
       });
     } else {
       if (mounted) {
@@ -91,7 +91,19 @@ class _RecipeEditPageState extends State<RecipeEditPage> {
   }
 
   void saveRecipe() async {
+    String? base64Image;
+
+    // Encode the selected image to Base64 if an image is selected
+    if (_image != null) {
+      base64Image = await encodeImageToBase64(_image!.path);
+    } else if (widget.recipe.imageData != null &&
+        widget.recipe.imageData!.isNotEmpty) {
+      base64Image =
+          widget.recipe.imageData; // Preserve the existing Base64 data
+    }
+
     final updatedRecipe = Recipe(
+      id: widget.recipe.id,
       name: _titleController.text.isNotEmpty
           ? _titleController.text
           : 'Untitled Recipe',
@@ -106,18 +118,19 @@ class _RecipeEditPageState extends State<RecipeEditPage> {
           .toList(),
       prepTime: int.tryParse(_prepTimeController.text) ?? 0,
       cookTime: int.tryParse(_cookTimeController.text) ?? 0,
-      imagePath: _image?.path,
-      dateCreated: DateTime.now(), // Update the date of creation
+      imageData: base64Image, // Pass the Base64-encoded image
+      dateCreated:
+          widget.recipe.dateCreated, // Preserve the original creation date
       favourite: widget.recipe.favourite,
-      id: widget.recipe.id,
     );
 
     final recipeService = RecipeService();
     await recipeService.updateRecipe(updatedRecipe);
 
     if (mounted) {
-      widget.onSave(updatedRecipe);
-      Navigator.pop(context, updatedRecipe);
+      widget.onSave(
+          updatedRecipe); // Trigger the callback with the updated recipe
+      Navigator.pop(context); // Navigate back to the previous screen
     }
   }
 
@@ -166,13 +179,48 @@ class _RecipeEditPageState extends State<RecipeEditPage> {
             ),
             const SizedBox(height: 16),
             Center(
-              child: ImagePickerWidget(
-                initialImage: _image,
-                onImagePicked: (pickedImage) {
-                  setState(() {
-                    _image = pickedImage;
-                  });
-                },
+              child: Column(
+                children: [
+                  GestureDetector(
+                    onTap:
+                        getImageGallery, // Allow the user to pick a new image
+                    child: _image != null
+                        ? Image.file(
+                            _image!,
+                            width: double
+                                .infinity, // Take up full horizontal space
+                            height: 200, // Adjust height as needed
+                            fit: BoxFit.contain, // Maintain aspect ratio
+                          )
+                        : (widget.recipe.imageData != null &&
+                                widget.recipe.imageData!.isNotEmpty)
+                            ? Image.memory(
+                                base64Decode(widget.recipe.imageData!),
+                                width: double
+                                    .infinity, // Take up full horizontal space
+                                height: 200, // Adjust height as needed
+                                fit: BoxFit.contain, // Maintain aspect ratio
+                              )
+                            : const Icon(Icons.image,
+                                size: 100, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 8),
+                  // Add a button to remove the image
+                  TextButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        _image = null; // Clear the selected image
+                        widget.recipe.imageData =
+                            null; // Clear the Base64 image data
+                      });
+                    },
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    label: const Text(
+                      'Remove Image',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 16),

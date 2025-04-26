@@ -2,8 +2,9 @@ import "dart:io";
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../recipe.dart';
-import '../widgets/dynamic_text_field_list.dart'; // Ingredients and steps controllers
+import '../widgets/dynamic_text_field_list.dart';
 import '../widgets/image_picker_widget.dart';
+import 'package:recishare_flutter/utils/image_utils.dart';
 
 class RecipeCreationPage extends StatefulWidget {
   const RecipeCreationPage({super.key});
@@ -78,7 +79,14 @@ class _RecipeCreationPageState extends State<RecipeCreationPage> {
     });
   }
 
-  void saveRecipe() {
+  void saveRecipe() async {
+    String? base64Image;
+
+    // Encode the selected image to Base64 if an image is selected
+    if (_image != null) {
+      base64Image = await encodeImageToBase64(_image!.path);
+    }
+
     final recipe = Recipe(
       name: _titleController.text.isNotEmpty
           ? _titleController.text
@@ -98,11 +106,15 @@ class _RecipeCreationPageState extends State<RecipeCreationPage> {
           : ['No instructions added.'],
       prepTime: int.tryParse(_prepTimeController.text) ?? 0,
       cookTime: int.tryParse(_cookTimeController.text) ?? 0,
-      imagePath: _image?.path,
+      imageData: base64Image, // Pass the Base64-encoded image
       dateCreated: DateTime.now(),
       favourite: false,
     );
-    Navigator.pop(context, recipe);
+
+    // Ensure the widget is still mounted before using the context
+    if (mounted) {
+      Navigator.pop(context, recipe);
+    }
   }
 
   @override

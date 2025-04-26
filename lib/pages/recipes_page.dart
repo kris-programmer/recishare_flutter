@@ -26,7 +26,7 @@ class _RecipesPageState extends State<RecipesPage> {
 
   Future<void> _loadRecipes() async {
     recipes = await _recipeService.getAllRecipes();
-    //_sortRecipes();
+    _sortRecipes(); // Ensure recipes are sorted after loading
     setState(() {});
   }
 

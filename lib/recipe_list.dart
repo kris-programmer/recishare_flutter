@@ -3,7 +3,7 @@ import 'package:recishare_flutter/recipe.dart';
 import 'package:recishare_flutter/pages/recipe_selected_page.dart';
 import 'package:recishare_flutter/pages/recipe_edit_page.dart';
 import 'package:recishare_flutter/recipe_service.dart';
-import 'dart:io';
+import 'package:recishare_flutter/utils/image_utils.dart';
 
 class RecipeList extends StatelessWidget {
   final List<Recipe> listItems;
@@ -52,42 +52,32 @@ class RecipeList extends StatelessWidget {
               DropdownButton<String>(
                 value: sortCriteria,
                 items: [
-                  // Add the currently selected option first
                   DropdownMenuItem(
                     value: sortCriteria,
                     child: Row(
                       children: [
-                        Text(sortCriteria), // Option text
-                        if (sortCriteria == 'Name')
-                          if (sortCriteria == 'Date')
-                            if (sortCriteria == 'Favourite')
-                              const Text(' '), // Empty space instead of emoji
+                        Text(sortCriteria),
                       ],
                     ),
                   ),
-                  // Add the remaining options, excluding the selected one
                   ...['Name', 'Date', 'Favourite']
                       .where((criteria) => criteria != sortCriteria)
                       .map((criteria) => DropdownMenuItem(
                             value: criteria,
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment
-                                  .spaceBetween, // Align text and emoji
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(criteria), // Option text
-                                if (criteria == 'Name')
-                                  const Text('🅰️'), // Emoji for Name
-                                if (criteria == 'Date')
-                                  const Text('📅'), // Emoji for Date
-                                if (criteria == 'Favourite')
-                                  const Text('❤️'), // Emoji for Favourite
+                                Text(criteria),
+                                if (criteria == 'Name') const Text('🅰️'),
+                                if (criteria == 'Date') const Text('📅'),
+                                if (criteria == 'Favourite') const Text('❤️'),
                               ],
                             ),
                           ))
                 ],
                 onChanged: (value) {
                   if (value != null) {
-                    onSortChange(value); // Trigger the sorting change
+                    onSortChange(value);
                   }
                 },
               ),
@@ -104,15 +94,14 @@ class RecipeList extends StatelessWidget {
               return GestureDetector(
                 onLongPress: () {
                   if (!isSelectionMode) {
-                    onStartSelectionMode(); // Trigger selection mode
-                    onSelectionChange(recipe, true); // Select the recipe
+                    onStartSelectionMode();
+                    onSelectionChange(recipe, true);
                   }
                 },
                 onTap: () {
                   if (isSelectionMode) {
-                    onSelectionChange(recipe, !isSelected); // Toggle selection
+                    onSelectionChange(recipe, !isSelected);
                   } else {
-                    // Navigate to recipe details if not in selection mode
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -139,13 +128,9 @@ class RecipeList extends StatelessWidget {
                             recipe.description?.split('.').first ??
                                 'No description available',
                           ),
-                          leading: recipe.imagePath != null
-                              ? Image.file(
-                                  File(recipe.imagePath!),
-                                  fit: BoxFit.cover,
-                                  width: 50,
-                                  height: 50,
-                                )
+                          leading: recipe.imageData != null &&
+                                  recipe.imageData!.isNotEmpty
+                              ? decodeBase64ToImage(recipe.imageData)
                               : const Icon(Icons.image_not_supported),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,

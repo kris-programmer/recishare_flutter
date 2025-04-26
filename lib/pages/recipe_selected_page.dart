@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:recishare_flutter/recipe.dart';
 import 'package:recishare_flutter/pages/recipe_edit_page.dart';
-import 'dart:io';
+import 'dart:convert';
 
 class SelectedRecipePage extends StatelessWidget {
   final Recipe recipe;
@@ -45,11 +45,11 @@ class SelectedRecipePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (recipe.imagePath != null)
+            if (recipe.imageData != null && recipe.imageData!.isNotEmpty)
               ClipRRect(
                 borderRadius: BorderRadius.circular(8.0),
-                child: Image.file(
-                  File(recipe.imagePath!),
+                child: Image.memory(
+                  base64Decode(recipe.imageData!), // Decode Base64 image
                   fit: BoxFit.cover,
                   width: double.infinity,
                   height: 200,

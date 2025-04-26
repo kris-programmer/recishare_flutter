@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'recipe.dart';
+import 'package:recishare_flutter/utils/image_utils.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -20,7 +21,13 @@ class DatabaseHelper {
     String path = join(await getDatabasesPath(), 'recipes.db');
     final db = await openDatabase(
       path,
-      version: 2,
+      version: 3, // Increment the version
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 3) {
+          // Add the new column for Base64 image data
+          await db.execute('ALTER TABLE recipes ADD COLUMN imageData TEXT');
+        }
+      },
       onCreate: _onCreate,
     );
 
@@ -37,7 +44,7 @@ class DatabaseHelper {
         instructions TEXT,
         prepTime INTEGER,
         cookTime INTEGER,
-        imagePath TEXT,
+        imageData TEXT, 
         favourite INTEGER,
         dateCreated TEXT NOT NULL
       )
@@ -78,5 +85,25 @@ class DatabaseHelper {
       where: 'id = ?',
       whereArgs: [recipe.id],
     );
+  }
+
+  Future<void> saveRecipeWithImage(String imagePath, Recipe recipe) async {
+    final dbHelper = DatabaseHelper();
+    final base64Image = await encodeImageToBase64(imagePath);
+
+    final newRecipe = Recipe(
+      id: recipe.id,
+      name: recipe.name,
+      description: recipe.description,
+      ingredients: recipe.ingredients,
+      instructions: recipe.instructions,
+      prepTime: recipe.prepTime,
+      cookTime: recipe.cookTime,
+      imageData: base64Image, // Store Base64-encoded image
+      dateCreated: recipe.dateCreated,
+      favourite: recipe.favourite,
+    );
+
+    await dbHelper.insertRecipe(newRecipe);
   }
 }
