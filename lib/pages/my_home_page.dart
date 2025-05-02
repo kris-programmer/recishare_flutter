@@ -12,7 +12,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int myIndex = 1; // Page index in app, used for the bottom nav bar
-  late List<Widget> pageList; // Declare pageList as late
+  late List<Widget> pageList; // Declare pageList as late to avoid errors
 
   @override
   void initState() {

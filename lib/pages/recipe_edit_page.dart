@@ -8,8 +8,8 @@ import 'package:recishare_flutter/utils/image_utils.dart';
 import 'dart:convert';
 
 class RecipeEditPage extends StatefulWidget {
-  final Recipe recipe;
-  final Function(Recipe) onSave;
+  final Recipe recipe; // The recipe being edited
+  final Function(Recipe) onSave; // Callback to save the updated recipe
 
   const RecipeEditPage({super.key, required this.recipe, required this.onSave});
 
@@ -18,14 +18,16 @@ class RecipeEditPage extends StatefulWidget {
 }
 
 class _RecipeEditPageState extends State<RecipeEditPage> {
-  File? _image;
-  final picker = ImagePicker();
+  File? _image; // Holds the selected image file
+  final picker = ImagePicker(); // Image picker instance
 
+  // Controllers for text fields
   late final TextEditingController _titleController;
   late final TextEditingController _descriptionController;
   late final TextEditingController _prepTimeController;
   late final TextEditingController _cookTimeController;
 
+  // Lists of controllers for dynamic fields
   final List<TextEditingController> _ingredientControllers = [];
   final List<TextEditingController> _stepControllers = [];
 
@@ -58,6 +60,7 @@ class _RecipeEditPageState extends State<RecipeEditPage> {
 
   @override
   void dispose() {
+    // Dispose all controllers to free resources
     for (var controller in _ingredientControllers) {
       controller.dispose();
     }
@@ -71,14 +74,15 @@ class _RecipeEditPageState extends State<RecipeEditPage> {
     super.dispose();
   }
 
+  // Opens the gallery to pick an image
   Future<void> getImageGallery() async {
     final pickedFile = await picker.pickImage(
       source: ImageSource.gallery,
-      imageQuality: 80,
+      imageQuality: 80, // Compress image quality to 80%
     );
     if (pickedFile != null) {
       setState(() {
-        _image = File(pickedFile.path);
+        _image = File(pickedFile.path); // Set the selected image
         widget.recipe.imageData = null; // Clear the existing Base64 data
       });
     } else {
@@ -90,6 +94,7 @@ class _RecipeEditPageState extends State<RecipeEditPage> {
     }
   }
 
+  // Saves the updated recipe
   void saveRecipe() async {
     String? base64Image;
 
@@ -102,28 +107,30 @@ class _RecipeEditPageState extends State<RecipeEditPage> {
           widget.recipe.imageData; // Preserve the existing Base64 data
     }
 
+    // Create an updated recipe object
     final updatedRecipe = Recipe(
       id: widget.recipe.id,
       name: _titleController.text.isNotEmpty
           ? _titleController.text
-          : 'Untitled Recipe',
+          : 'Untitled Recipe', // Default title if empty
       description: _descriptionController.text.isNotEmpty
           ? _descriptionController.text
-          : 'No description provided.',
+          : 'No description provided.', // Default description if empty
       ingredients: _ingredientControllers
           .map((c) => c.text.isNotEmpty ? c.text : 'Unnamed ingredient')
-          .toList(),
+          .toList(), // Default ingredient name if empty
       instructions: _stepControllers
           .map((c) => c.text.isNotEmpty ? c.text : 'Unnamed step')
-          .toList(),
-      prepTime: int.tryParse(_prepTimeController.text) ?? 0,
-      cookTime: int.tryParse(_cookTimeController.text) ?? 0,
+          .toList(), // Default step name if empty
+      prepTime: int.tryParse(_prepTimeController.text) ?? 0, // Default to 0
+      cookTime: int.tryParse(_cookTimeController.text) ?? 0, // Default to 0
       imageData: base64Image, // Pass the Base64-encoded image
       dateCreated:
           widget.recipe.dateCreated, // Preserve the original creation date
-      favourite: widget.recipe.favourite,
+      favourite: widget.recipe.favourite, // Preserve favourite status
     );
 
+    // Update the recipe using the service
     final recipeService = RecipeService();
     await recipeService.updateRecipe(updatedRecipe);
 
@@ -138,6 +145,7 @@ class _RecipeEditPageState extends State<RecipeEditPage> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
+        // Confirm with the user before discarding changes
         final shouldDiscard = await showDialog<bool>(
           context: context,
           builder: (BuildContext context) {
@@ -166,18 +174,22 @@ class _RecipeEditPageState extends State<RecipeEditPage> {
           actions: [
             IconButton(
               icon: const Icon(Icons.check),
-              onPressed: saveRecipe,
+              onPressed:
+                  saveRecipe, // Save the recipe when the check icon is pressed
             ),
           ],
         ),
         body: ListView(
           padding: const EdgeInsets.all(16.0),
           children: [
+            // Title input field
             TextField(
               controller: _titleController,
               decoration: const InputDecoration(labelText: 'Title'),
             ),
             const SizedBox(height: 16),
+
+            // Image picker and preview
             Center(
               child: Column(
                 children: [
@@ -202,7 +214,8 @@ class _RecipeEditPageState extends State<RecipeEditPage> {
                                 fit: BoxFit.contain, // Maintain aspect ratio
                               )
                             : const Icon(Icons.image,
-                                size: 100, color: Colors.grey),
+                                size: 100,
+                                color: Colors.grey), // Placeholder icon
                   ),
                   const SizedBox(height: 8),
                   // Add a button to remove the image
@@ -224,6 +237,8 @@ class _RecipeEditPageState extends State<RecipeEditPage> {
               ),
             ),
             const SizedBox(height: 16),
+
+            // Description input field
             TextField(
               controller: _descriptionController,
               decoration: const InputDecoration(
@@ -236,7 +251,7 @@ class _RecipeEditPageState extends State<RecipeEditPage> {
             ),
             const SizedBox(height: 16),
 
-            // INGREDIENTS
+            // Dynamic list for ingredients
             DynamicTextFieldList(
               controllers: _ingredientControllers,
               label: 'Ingredient',
@@ -255,7 +270,7 @@ class _RecipeEditPageState extends State<RecipeEditPage> {
 
             const SizedBox(height: 16),
 
-            // INSTRUCTIONS
+            // Dynamic list for instructions
             DynamicTextFieldList(
               controllers: _stepControllers,
               label: 'Step',
@@ -273,12 +288,16 @@ class _RecipeEditPageState extends State<RecipeEditPage> {
             ),
 
             const SizedBox(height: 16),
+
+            // Prep time input field
             TextField(
               controller: _prepTimeController,
               decoration:
                   const InputDecoration(labelText: 'Prep Time (minutes)'),
               keyboardType: TextInputType.number,
             ),
+
+            // Cook time input field
             TextField(
               controller: _cookTimeController,
               decoration:

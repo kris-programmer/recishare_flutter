@@ -4,49 +4,65 @@ import '../theme_provider.dart';
 import 'import_export_page.dart';
 import 'about_page.dart';
 
+// The SettingsPage widget provides a settings screen for the app.
 class SettingsPage extends StatelessWidget {
+  // Callback function to refresh the app's state when necessary.
   final Function() onRefresh;
 
+  // Constructor for SettingsPage, requiring the onRefresh callback.
   const SettingsPage({super.key, required this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
+    // Access the ThemeProvider to manage theme-related settings.
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
+        // Title of the settings page.
         title: const Text('Settings'),
         centerTitle: true,
       ),
       body: ListView(
         children: [
+          // ListTile for navigating to the Import/Export page.
           ListTile(
             leading: const Icon(Icons.download),
             title: const Text('Import / Export recipes'),
             onTap: () async {
+              // Navigate to the ImportExportPage and wait for a result.
               final result = await Navigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (context) =>
                         ImportExportPage(onRefresh: onRefresh)),
               );
+              // If the result is true, trigger the onRefresh callback,
+              // updating the recipes inside the app.
               if (result == true) {
                 onRefresh();
               }
             },
           ),
+
+          // SwitchListTile for toggling between light and dark mode.
           SwitchListTile(
             title: const Text('Dark Mode'),
-            value: themeProvider.themeMode == ThemeMode.dark,
+            value: themeProvider.themeMode ==
+                ThemeMode.dark, // Current theme mode.
             onChanged: (value) {
+              // Toggle the theme mode when the switch is changed.
               themeProvider.toggleTheme();
             },
             secondary: const Icon(Icons.dark_mode),
           ),
+
+          // ListTile for navigating to the About page.
           ListTile(
             leading: const Icon(Icons.info),
             title: const Text('About'),
             onTap: () {
+              // Navigate to the AboutPage.
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const AboutPage()),

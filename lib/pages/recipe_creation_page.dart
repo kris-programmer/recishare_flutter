@@ -14,20 +14,25 @@ class RecipeCreationPage extends StatefulWidget {
 }
 
 class _RecipeCreationPageState extends State<RecipeCreationPage> {
+  // Holds the selected image file
   File? _image;
+
+  // Image picker instance for selecting images
   final picker = ImagePicker();
 
+  // Controllers for the various text fields
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _prepTimeController = TextEditingController();
   final TextEditingController _cookTimeController = TextEditingController();
 
+  // Lists to manage dynamic text fields for ingredients and instructions
   final List<TextEditingController> _ingredientControllers = [];
   final List<TextEditingController> _instructionStepControllers = [];
 
   @override
-  // Free up memory after user is done creating a recipe
   void dispose() {
+    // Dispose all controllers to free up memory
     for (var controller in _ingredientControllers) {
       controller.dispose();
     }
@@ -41,6 +46,7 @@ class _RecipeCreationPageState extends State<RecipeCreationPage> {
     super.dispose();
   }
 
+  // Opens the gallery to pick an image and updates the state
   Future getImageGallery() async {
     final pickedFile =
         await picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
@@ -48,6 +54,7 @@ class _RecipeCreationPageState extends State<RecipeCreationPage> {
       if (pickedFile != null) {
         _image = File(pickedFile.path);
       } else {
+        // Show a message if no image is selected
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('No image selected.')),
         );
@@ -55,30 +62,35 @@ class _RecipeCreationPageState extends State<RecipeCreationPage> {
     });
   }
 
+  // Adds a new ingredient text field
   void _addIngredientField() {
     setState(() {
       _ingredientControllers.add(TextEditingController());
     });
   }
 
+  // Adds a new instruction step text field
   void _addInstructionField() {
     setState(() {
       _instructionStepControllers.add(TextEditingController());
     });
   }
 
+  // Removes an ingredient text field at the specified index
   void _removeIngredientField(int index) {
     setState(() {
       _ingredientControllers.removeAt(index).dispose();
     });
   }
 
+  // Removes an instruction step text field at the specified index
   void _removeInstructionField(int index) {
     setState(() {
       _instructionStepControllers.removeAt(index).dispose();
     });
   }
 
+  // Saves the recipe and navigates back with the created recipe object
   void saveRecipe() async {
     String? base64Image;
 
@@ -87,33 +99,35 @@ class _RecipeCreationPageState extends State<RecipeCreationPage> {
       base64Image = await encodeImageToBase64(_image!.path);
     }
 
+    // Create a Recipe object with the provided data
     final recipe = Recipe(
       name: _titleController.text.isNotEmpty
           ? _titleController.text
-          : 'Untitled Recipe',
+          : 'Untitled Recipe', // Default title if none is provided
       description: _descriptionController.text.isNotEmpty
           ? _descriptionController.text
-          : 'No description provided.',
+          : 'No description provided.', // Default description
       ingredients: _ingredientControllers.isNotEmpty
           ? _ingredientControllers
               .map((c) => c.text.isNotEmpty ? c.text : 'Unnamed ingredient')
               .toList()
-          : ['No ingredients added.'],
+          : ['No ingredients added.'], // Default ingredient list
       instructions: _instructionStepControllers.isNotEmpty
           ? _instructionStepControllers
               .map((c) => c.text.isNotEmpty ? c.text : 'Unnamed step')
               .toList()
-          : ['No instructions added.'],
-      prepTime: int.tryParse(_prepTimeController.text) ?? 0,
-      cookTime: int.tryParse(_cookTimeController.text) ?? 0,
+          : ['No instructions added.'], // Default instruction list
+      prepTime: int.tryParse(_prepTimeController.text) ?? 0, // Default to 0
+      cookTime: int.tryParse(_cookTimeController.text) ?? 0, // Default to 0
       imageData: base64Image, // Pass the Base64-encoded image
-      dateCreated: DateTime.now(),
-      favourite: false,
+      dateCreated: DateTime.now(), // Timestamp for recipe creation
+      favourite: false, // Default to not favorited
     );
 
     // Ensure the widget is still mounted before using the context
     if (mounted) {
-      Navigator.pop(context, recipe);
+      Navigator.pop(
+          context, recipe); // Return the recipe to the previous screen
     }
   }
 
@@ -123,6 +137,7 @@ class _RecipeCreationPageState extends State<RecipeCreationPage> {
       appBar: AppBar(
         title: const Text("Create a recipe"),
         actions: [
+          // Save button
           IconButton(
             icon: const Icon(Icons.check),
             onPressed: saveRecipe,
@@ -132,12 +147,14 @@ class _RecipeCreationPageState extends State<RecipeCreationPage> {
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
+          // Title input field
           TextField(
             controller: _titleController,
             decoration: const InputDecoration(labelText: 'Title'),
           ),
           const SizedBox(height: 16),
 
+          // Image picker widget
           Center(
             child: ImagePickerWidget(
               initialImage: _image,
@@ -150,6 +167,7 @@ class _RecipeCreationPageState extends State<RecipeCreationPage> {
           ),
           const SizedBox(height: 16),
 
+          // Description input field
           TextField(
             controller: _descriptionController,
             decoration: const InputDecoration(
@@ -162,16 +180,16 @@ class _RecipeCreationPageState extends State<RecipeCreationPage> {
           ),
           const SizedBox(height: 16),
 
-          // INGREDIENTS
+          // Dynamic list for ingredients
           DynamicTextFieldList(
             controllers: _ingredientControllers,
             label: 'Ingredient',
             onAdd: _addIngredientField,
             onRemove: _removeIngredientField,
-            minLines: 1, // Start with 2 rows for each ingredient text box
+            minLines: 1, // Start with 1 row for each ingredient text box
           ),
 
-          // INSTRUCTIONS
+          // Dynamic list for instructions
           DynamicTextFieldList(
             controllers: _instructionStepControllers,
             label: 'Step',
@@ -181,11 +199,15 @@ class _RecipeCreationPageState extends State<RecipeCreationPage> {
           ),
 
           const SizedBox(height: 16),
+
+          // Prep time input field
           TextField(
             controller: _prepTimeController,
             decoration: const InputDecoration(labelText: 'Prep Time (minutes)'),
             keyboardType: TextInputType.number,
           ),
+
+          // Cook time input field
           TextField(
             controller: _cookTimeController,
             decoration: const InputDecoration(labelText: 'Cook Time (minutes)'),

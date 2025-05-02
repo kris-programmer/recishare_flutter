@@ -14,20 +14,22 @@ class SelectedRecipePage extends StatelessWidget {
         title: Text(recipe.name),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () =>
+              Navigator.pop(context), // Navigate back to the previous page
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
             onPressed: () {
+              // Navigate to the RecipeEditPage and handle the updated recipe
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => RecipeEditPage(
                     recipe: recipe,
                     onSave: (updatedRecipe) {
-                      // Handle the updated recipe if needed
-                      Navigator.pop(context, updatedRecipe);
+                      Navigator.pop(
+                          context, updatedRecipe); // Return the updated recipe
                     },
                   ),
                 ),
@@ -45,6 +47,7 @@ class SelectedRecipePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Display the recipe image or a placeholder icon if no image is available
             if (recipe.imageData != null && recipe.imageData!.isNotEmpty)
               ClipRRect(
                 borderRadius: BorderRadius.circular(8.0),
@@ -58,6 +61,7 @@ class SelectedRecipePage extends StatelessWidget {
             else
               const Icon(Icons.image_not_supported, size: 100),
             const SizedBox(height: 24),
+            // Display the recipe name
             Text(
               recipe.name,
               style: Theme.of(context).textTheme.headlineLarge?.copyWith(
@@ -66,6 +70,7 @@ class SelectedRecipePage extends StatelessWidget {
             ),
             const Divider(thickness: 1.5),
             const SizedBox(height: 16),
+            // Display the recipe description
             Text(
               recipe.description ?? 'No description available',
               style: Theme.of(context).textTheme.bodyLarge,
@@ -73,6 +78,7 @@ class SelectedRecipePage extends StatelessWidget {
             const SizedBox(
               height: 24,
             ),
+            // Display the last edited date
             Text(
               'Last edited: ${recipe.dateCreated.toLocal().toString().split(' ')[0]}',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -81,6 +87,7 @@ class SelectedRecipePage extends StatelessWidget {
                   ),
             ),
             const SizedBox(height: 24),
+            // Display the ingredients list
             Text(
               'Ingredients',
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
@@ -112,6 +119,7 @@ class SelectedRecipePage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
+            // Display the instructions list
             Text(
               'Instructions',
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
@@ -146,6 +154,7 @@ class SelectedRecipePage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             const SizedBox(height: 24),
+            // Display prep time and cook time
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
