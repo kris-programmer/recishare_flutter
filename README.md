@@ -1,6 +1,6 @@
 # 🥗 ReciShare
 
-**ReciShare** is a simple mobile app built with Flutter that allows users to create, edit, and share their favorite recipes. Whether you're a home cook or a culinary enthusiast, ReciShare is your go-to digital recipe book.
+**ReciShare** is a simple android mobile app built with Flutter that allows users to create, edit, and share their favorite recipes. Whether you're a home cook or a culinary enthusiast, ReciShare is your go-to digital recipe book.
 
 ---
 
@@ -61,6 +61,7 @@ Make sure you have the following installed:
 * Recipe categories and filtering
 * Export to a cloud storage
 * Video upload for recipes
+* iOS support
 
 ---
 
