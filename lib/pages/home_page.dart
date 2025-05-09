@@ -77,7 +77,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('ReciShare')),
+      appBar: AppBar(title: const Text('Home'), centerTitle: true),
       body: RefreshIndicator(
         onRefresh: _refreshRecipes, // Pull-to-refresh functionality
         child: SingleChildScrollView(
