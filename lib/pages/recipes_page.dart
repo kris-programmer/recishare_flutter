@@ -20,6 +20,7 @@ class _RecipesPageState extends State<RecipesPage> {
   final TextEditingController _searchController = TextEditingController();
   String searchQuery = '';
   bool isSearching = false; // Flag to toggle search mode
+  String viewMode = 'List'; // Default view mode
 
   @override
   void initState() {
@@ -158,8 +159,7 @@ class _RecipesPageState extends State<RecipesPage> {
                 if (isSearching)
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.only(
-                          left: 8.0), // Add padding to the left
+                      padding: const EdgeInsets.only(left: 8.0),
                       child: TextField(
                         controller: _searchController,
                         decoration: const InputDecoration(
@@ -210,37 +210,65 @@ class _RecipesPageState extends State<RecipesPage> {
                 ),
               ],
       ),
-      body: RecipeList(
-        filteredRecipes,
-        isSelectionMode: isSelectionMode,
-        selectedRecipes: selectedRecipes,
-        onDelete: _deleteRecipe,
-        onRefresh: _loadRecipes,
-        onSelectionChange: (recipe, isSelected) {
-          setState(() {
-            if (isSelected) {
-              selectedRecipes.add(recipe);
-            } else {
-              selectedRecipes.remove(recipe);
-            }
-            if (selectedRecipes.isEmpty) {
-              isSelectionMode = false;
-            }
-          });
-        },
-        onStartSelectionMode: () {
-          setState(() {
-            isSelectionMode = true;
-          });
-        },
-        sortCriteria: sortCriteria,
-        onSortChange: (newCriteria) {
-          setState(() {
-            sortCriteria = newCriteria;
-          });
-          _sortRecipes();
-        },
-      ),
+      body: viewMode == 'List'
+          ? RecipeList(
+              filteredRecipes,
+              isSelectionMode: isSelectionMode,
+              selectedRecipes: selectedRecipes,
+              onDelete: _deleteRecipe,
+              onRefresh: _loadRecipes,
+              onSelectionChange: (recipe, isSelected) {
+                setState(() {
+                  if (isSelected) {
+                    selectedRecipes.add(recipe);
+                  } else {
+                    selectedRecipes.remove(recipe);
+                  }
+                  if (selectedRecipes.isEmpty) {
+                    isSelectionMode = false;
+                  }
+                });
+              },
+              onStartSelectionMode: () {
+                setState(() {
+                  isSelectionMode = true;
+                });
+              },
+              sortCriteria: sortCriteria,
+              onSortChange: (newCriteria) {
+                setState(() {
+                  sortCriteria = newCriteria;
+                });
+                _sortRecipes();
+              },
+            )
+          : GridView.builder(
+              padding: const EdgeInsets.all(8.0),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 3 / 2,
+                crossAxisSpacing: 8.0,
+                mainAxisSpacing: 8.0,
+              ),
+              itemCount: filteredRecipes.length,
+              itemBuilder: (context, index) {
+                final recipe = filteredRecipes[index];
+                return GestureDetector(
+                  onTap: () {
+                    // Handle recipe tap
+                  },
+                  child: Card(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(recipe.name),
+                        // TODO Add more details
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
     );
   }
 }

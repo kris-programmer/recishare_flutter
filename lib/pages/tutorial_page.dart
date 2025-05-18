@@ -13,15 +13,17 @@ class _TutorialPageState extends State<TutorialPage> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  Future<void> _completeTutorial(BuildContext context) async {
+  Future<void> _completeTutorial() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isFirstLaunch', false);
 
-    // Navigate to the home page
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const MyHomePage()),
-    );
+    // Ensure the widget is still mounted before navigating
+    if (mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MyHomePage()),
+      );
+    }
   }
 
   @override
@@ -55,7 +57,7 @@ class _TutorialPageState extends State<TutorialPage> {
                   description: 'Let’s dive into the world of recipes!',
                   image: Icons.check_circle,
                   isLastPage: true,
-                  onComplete: () => _completeTutorial(context),
+                  onComplete: _completeTutorial,
                 ),
               ],
             ),
